@@ -1,0 +1,16 @@
+{
+  "product_name": "Sample SaaS Flow",
+  "source": "Mixpanel Cohort Export",
+  "retention_curve": {
+    "Day 0": 100.0,
+    "Day 1": 46.2,
+    "Day 3": 23.5,
+    "Day 7": 14.8,
+    "Day 30": 8.5
+  },
+  "metrics": {
+    "wau_mau_ratio": 0.42,
+    "avg_ttv_seconds": 38.0,
+    "onboarding_completion_rate": 0.74
+  }
+}

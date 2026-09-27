@@ -138,10 +138,21 @@ class LifecycleSimulator:
 
         empirical_comparison = None
         if self.empirical_telemetry:
+            raw_map = self.empirical_telemetry
+            if isinstance(raw_map, dict):
+                if "retention_curve" in raw_map and isinstance(raw_map["retention_curve"], dict):
+                    raw_map = raw_map["retention_curve"]
+                elif "retention" in raw_map and isinstance(raw_map["retention"], dict):
+                    raw_map = raw_map["retention"]
+
             normalized_empirical = {}
-            for k, v in self.empirical_telemetry.items():
-                k_norm = k.replace("_", " ").title()
-                normalized_empirical[k_norm] = float(v)
+            if isinstance(raw_map, dict):
+                for k, v in raw_map.items():
+                    try:
+                        k_norm = str(k).replace("_", " ").title()
+                        normalized_empirical[k_norm] = float(v)
+                    except (ValueError, TypeError):
+                        continue
 
             rounds_comp = []
             for r_id in self.ROUNDS:

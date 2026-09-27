@@ -2,6 +2,9 @@
 
 <div align="center">
 
+<img src="assets/hero-banner.jpg" alt="HookEngine Hero Banner" width="100%" />
+
+[![CI](https://github.com/hrkdas/nir-eyal-hooked/actions/workflows/ci.yml/badge.svg)](https://github.com/hrkdas/nir-eyal-hooked/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-agentskills.io-purple.svg)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-orange.svg)](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
@@ -99,7 +102,21 @@ python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --di
 hook-engine audit ./my-app --telemetry retention.json --html report.html --diff
 ```
 
-### 4. Subcommands
+### 4. Try the Included Live Demo
+
+Test the audit against the bundled sample SaaS onboarding flow:
+
+```bash
+./bin/hook-engine audit ./examples/sample-product \
+  --html ./examples/sample_report.html \
+  --json ./examples/sample_bundle.json \
+  --telemetry ./examples/sample_telemetry.json \
+  --diff
+```
+
+Open `examples/sample_report.html` in your browser to explore the interactive Habit Zone graph, EAST score card, and 5 Whys interview accordions!
+
+### 5. Subcommands
 
 ```bash
 # Scan codebase for Hook components (Triggers, Actions, Rewards, Investments)
@@ -207,8 +224,16 @@ product myself?          +---------------------+---------------------+
 ├── LICENSE                            # MIT license
 ├── README.md                          # Public documentation & skill guide
 ├── pyproject.toml                     # Standard Python packaging (pip install .)
+├── assets/                            # Visual assets and social preview hero banner
 ├── bin/
 │   └── hook-engine                    # Standalone CLI wrapper (no install needed)
+├── examples/                          # Live demo: sample product, HTML dashboard, telemetry
+│   ├── README.md
+│   ├── sample-product/                # TypeScript/React onboarding and hook flow
+│   ├── sample_report.html             # Standalone interactive dashboard
+│   ├── sample_bundle.json             # Complete JSON audit bundle
+│   └── sample_telemetry.json          # Mixpanel/PostHog retention export
+├── launch/                            # Launch kits: Show HN, Twitter thread, Reddit, LinkedIn
 ├── hook_engine/                       # Core Python engine (Zero dependencies)
 │   ├── __init__.py
 │   ├── cli.py                         # Unified CLI runner

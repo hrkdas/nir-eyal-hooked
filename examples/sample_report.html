@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hook Model Audit: sample-product</title>
+<style>
+:root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { background-color: var(--bg); color: var(--text); padding: 2rem; line-height: 1.5; }
+.container { max-width: 1200px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.title-wrap h1 { font-size: 1.8rem; font-weight: 700; }
+.title-wrap p { color: var(--muted); font-size: 0.95rem; }
+.score-badge { display: flex; align-items: center; gap: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; }
+.score-circle { font-size: 2.2rem; font-weight: 800; color: #f59e0b; }
+.score-label { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.card-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+.card-metric { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+.card-desc { font-size: 0.85rem; color: var(--muted); }
+
+.section { margin-bottom: 2.5rem; }
+.section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+.split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 850px) { .split-2 { grid-template-columns: 1fr; } }
+
+.zone-svg { width: 100%; height: auto; max-height: 380px; background: #131d31; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { background: #131d31; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+
+.badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+.badge.pass { background: #064e3b; color: #34d399; }
+.badge.warn { background: #78350f; color: #fbbf24; }
+.badge.fail { background: #7f1d1d; color: #f87171; }
+.badge.na { background: #374151; color: #9ca3af; }
+.phase-tag { font-size: 0.75rem; font-weight: 700; color: var(--accent); }
+.sev-tag { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.rec-text { font-size: 0.85rem; color: #cbd5e1; }
+
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-bar { height: 8px; border-radius: 4px; transition: width 0.3s ease; }
+
+.interview-accordion { background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; overflow: hidden; }
+.interview-accordion summary { padding: 1rem; cursor: pointer; background: #1a2436; font-size: 0.95rem; }
+.accordion-body { padding: 1.25rem; }
+.interview-step { display: flex; gap: 1rem; margin-bottom: 1rem; border-left: 2px solid var(--border); padding-left: 1rem; }
+.why-badge { background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; border-radius: 4px; padding: 0.2rem 0.4rem; height: fit-content; }
+.interview-dialogue p { margin-bottom: 0.35rem; font-size: 0.9rem; }
+.interview-dialogue .q { color: #cbd5e1; }
+.interview-dialogue .a { color: #38bdf8; }
+.interview-dialogue .diag { color: #f59e0b; font-size: 0.8rem; }
+.interview-remedy { margin-top: 1rem; padding: 0.75rem; background: #0f172a; border-left: 3px solid var(--success); border-radius: 4px; font-size: 0.9rem; }
+.east-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.east-item { background: #131d31; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
+.east-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="title-wrap">
+            <h1>Hook Model Behavioral Audit</h1>
+            <p>Project: <strong>sample-product</strong> &bull; Generated: 2026-09-27T20:55:06.328782Z</p>
+        </div>
+        <div class="score-badge">
+            <div class="score-circle">65</div>
+            <div>
+                <div class="score-label">Habit Health Index</div>
+                <div style="font-size: 0.85rem; color: var(--muted);">Moderate Habit Potential (65/100). Core loops exist but user friction or reward fatigue limits automaticity.</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- EAST Behavioral Framework Card (if analyzed) -->
+    
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <span class="card-title">EAST Behavioral Framework Diagnostic</span>
+            <span class="badge warn">EAST Score: 66/100</span>
+        </div>
+        <div class="east-grid">
+            <div class="east-item">
+                <div class="east-label"><span><strong>E</strong>asy</span> <span>72/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: 72%; background: #38bdf8;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Frictionless default paths & progressive disclosure</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>A</strong>ttractive</span> <span>70/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: 70%; background: #a855f7;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Salient cues & immediate dopamine anticipation</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>S</strong>ocial</span> <span>55/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: 55%; background: #ec4899;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Tribe validation, social proof & peer loops</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>T</strong>imely</span> <span>70/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: 70%; background: #10b981;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Context-aware prompts & trigger priming</small>
+            </div>
+        </div>
+    </div>
+            
+
+    <!-- 4 Phases + TTV Stopwatch Grid -->
+    <div class="grid-4">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">1. Triggers</span>
+                <span>2 detected</span>
+            </div>
+            <div class="card-metric" style="color: #10b981;">
+                OWNED
+            </div>
+            <div class="card-desc">External prompt scaffolding & internal emotional itch alignment</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">2. Action (Fogg Sieve)</span>
+                <span>B = MAT</span>
+            </div>
+            <div class="card-metric" style="color: #10b981;">
+                85<small style="font-size: 1rem; color: var(--muted);">/100</small>
+            </div>
+            <div class="card-desc">Simplicity across time, money, and mental/physical effort</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">3. Variable Reward</span>
+                <span>Nucleus Accumbens</span>
+            </div>
+            <div class="card-metric" style="color: #10b981;">
+                80<small style="font-size: 1rem; color: var(--muted);">/100</small>
+            </div>
+            <div class="card-desc">Dopamine variability (Tribe, Hunt, Self) vs satiation decay</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">4. Investment</span>
+                <span>IKEA Effect</span>
+            </div>
+            <div class="card-metric" style="color: #f59e0b;">
+                15<small style="font-size: 1rem; color: var(--muted);">/100</small>
+            </div>
+            <div class="card-desc">Compounding stored value (Content, Data, Reputation, Skill)</div>
+        </div>
+    </div>
+
+    <!-- TTV Stopwatch Highlight -->
+    <div style="margin-bottom: 2rem;">
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Time-to-Value (TTV) Stopwatch</span>
+                <span class="badge" style="background: #10b98120; color: #10b981; border: 1px solid #10b98140;">Instant (<25s)</span>
+            </div>
+            <div class="card-metric" style="color: #10b981;">~22s <small style="font-size: 0.9rem; color: var(--muted);">to first Aha! moment</small></div>
+            <div class="card-desc">Simulated clock from initial landing / prompt arrival to first core value delivery.</div>
+        </div>
+        
+    </div>
+
+    <!-- Habit Zone & Cohorts Section -->
+    <div class="section split-2">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">The Habit Zone Coordinate</span>
+                <span class="badge pass">IN HABIT ZONE</span>
+            </div>
+            <svg class="zone-svg" viewBox="0 0 400 400">
+                <!-- Axes -->
+                <line x1="40" y1="360" x2="380" y2="360" stroke="#334155" stroke-width="2"/>
+                <line x1="40" y1="360" x2="40" y2="20" stroke="#334155" stroke-width="2"/>
+                <!-- Axis Labels -->
+                <text x="210" y="390" fill="#94a3b8" font-size="12" text-anchor="middle">Perceived Utility (Painkiller Factor) &rarr;</text>
+                <text x="-190" y="20" fill="#94a3b8" font-size="12" text-anchor="middle" transform="rotate(-90)">Frequency of Behavior &rarr;</text>
+                <!-- Threshold Curve -->
+                <path d="M 40 120 Q 180 200 360 330" fill="none" stroke="#f59e0b" stroke-dasharray="4 4" stroke-width="2"/>
+                <text x="300" y="270" fill="#f59e0b" font-size="10">Habit Threshold Curve</text>
+                <!-- Habit Zone fill -->
+                <path d="M 40 120 Q 180 200 360 330 L 380 330 L 380 20 L 40 20 Z" fill="#10b981" fill-opacity="0.08"/>
+                <text x="260" y="80" fill="#34d399" font-size="14" font-weight="bold">THE HABIT ZONE</text>
+                <!-- Plotted Project Point -->
+                <circle cx="200.0" cy="97.60000000000002" r="8" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>
+                <text x="212.0" y="101.60000000000002" fill="#ffffff" font-size="12" font-weight="bold">sample-product</text>
+            </svg>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+                Classification: <strong>Vitamin Habit (High Frequency, Delight-Driven)</strong> (Freq: 8.2/10, Utility: 5.0/10).
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">User Cohort 30-Day Retention Simulation</span>
+                <span>4.0% Overall</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cohort Archetype</th>
+                        <th>Day 0</th>
+                        <th>Day 30</th>
+                        <th>Retention Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><strong>The Casual Novice</strong></td>
+                    <td>100</td>
+                    <td>2</td>
+                    <td>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: 5%; background: #ef4444;"></div>
+                            <span>2.0%</span>
+                        </div>
+                    </td>
+                </tr>
+                
+
+                <tr>
+                    <td><strong>The Anxious Professional</strong></td>
+                    <td>100</td>
+                    <td>5</td>
+                    <td>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: 5%; background: #ef4444;"></div>
+                            <span>5.0%</span>
+                        </div>
+                    </td>
+                </tr>
+                
+
+                <tr>
+                    <td><strong>The Cynical Skeptic</strong></td>
+                    <td>100</td>
+                    <td>3</td>
+                    <td>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: 5%; background: #ef4444;"></div>
+                            <span>3.0%</span>
+                        </div>
+                    </td>
+                </tr>
+                
+
+                <tr>
+                    <td><strong>The Power Devotee</strong></td>
+                    <td>100</td>
+                    <td>8</td>
+                    <td>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: 8.0%; background: #ef4444;"></div>
+                            <span>8.0%</span>
+                        </div>
+                    </td>
+                </tr>
+                
+
+                <tr>
+                    <td><strong>The Busy Multitasker</strong></td>
+                    <td>100</td>
+                    <td>2</td>
+                    <td>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: 5%; background: #ef4444;"></div>
+                            <span>2.0%</span>
+                        </div>
+                    </td>
+                </tr>
+                
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-weight: 600; font-size: 0.95rem;">Empirical Telemetry Calibration (Mixpanel / PostHog)</span>
+                    <span class="badge pass">Calibrated</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Round</th>
+                            <th>Simulated</th>
+                            <th>Empirical Actual</th>
+                            <th>Delta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr>
+                    <td><strong>Day 0</strong></td>
+                    <td>73.2%</td>
+                    <td>100.0%</td>
+                    <td><span style="color: #ef4444; font-weight: bold;">+26.8%</span></td>
+                </tr>
+                
+                <tr>
+                    <td><strong>Day 1</strong></td>
+                    <td>42.8%</td>
+                    <td>46.2%</td>
+                    <td><span style="color: #10b981; font-weight: bold;">+3.4%</span></td>
+                </tr>
+                
+                <tr>
+                    <td><strong>Day 3</strong></td>
+                    <td>17.0%</td>
+                    <td>23.5%</td>
+                    <td><span style="color: #f59e0b; font-weight: bold;">+6.5%</span></td>
+                </tr>
+                
+                <tr>
+                    <td><strong>Day 7</strong></td>
+                    <td>10.2%</td>
+                    <td>14.8%</td>
+                    <td><span style="color: #10b981; font-weight: bold;">+4.6%</span></td>
+                </tr>
+                
+                <tr>
+                    <td><strong>Day 30</strong></td>
+                    <td>4.0%</td>
+                    <td>8.5%</td>
+                    <td><span style="color: #10b981; font-weight: bold;">+4.5%</span></td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
+                Ethics Classification: <strong>Facilitator</strong> &bull; Manipulation Matrix: 
+                <span style="color: #34d399;">
+                    High integrity (Maker uses it & creates material utility)
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Qualitative Churn Interviews -->
+    <div class="section">
+        <h2 class="section-title">Synthetic "5 Whys" Churn Interrogations</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">
+            Qualitative interviews simulating dropped-out cohort personas to extract root-cause emotional friction.
+        </p>
+        
+                <details class="interview-accordion">
+                    <summary><strong>The Casual Novice</strong> — Dropped out at Day 0 (Root Itch: boredom)</summary>
+                    <div class="accordion-body">
+                        
+                    <div class="interview-step">
+                        <div class="why-badge">Why 1</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Hello The Casual Novice. Our telemetry shows you abandoned the application during initial onboarding. Why did you leave?</p>
+                            <p class="a"><strong>A:</strong> "I clicked the link expecting a quick solution, but was immediately confronted with a heavy setup flow."</p>
+                            <p class="diag"><em>Diagnosis: Initial Action Barrier (Fogg Ability Threshold Exceeded)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 2</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why did the setup flow feel so heavy?</p>
+                            <p class="a"><strong>A:</strong> "It demanded 1 input fields and forced account creation before I even saw what the tool actually did for me."</p>
+                            <p class="diag"><em>Diagnosis: Violation of Simplicity Sieve (Mental & Physical Effort Friction / TTV Delay)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 3</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why didn't the potential benefit justify taking 2 minutes to fill out those fields?</p>
+                            <p class="a"><strong>A:</strong> "Because I didn't have proof of value yet. Every modern app promises the world, but asking for my credentials upfront felt like homework."</p>
+                            <p class="diag"><em>Diagnosis: Asymmetric Investment Demand (Demanding Investment before Variable Reward)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 4</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why were you looking for an application like this in that exact moment?</p>
+                            <p class="a"><strong>A:</strong> "I was feeling overwhelmed and rushed. I needed an instant answer, not a new software project to manage."</p>
+                            <p class="diag"><em>Diagnosis: Misalignment with User Context & Cognitive Bandwidth</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 5</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> What was the core underlying emotional itch you were trying to solve?</p>
+                            <p class="a"><strong>A:</strong> "Deep down, I felt acute boredom. When your product added friction instead of soothing that discomfort, my subconscious reacted by closing the tab."</p>
+                            <p class="diag"><em>Diagnosis: ROOT CAUSE: Failure to relieve the internal trigger (boredom) within 3 seconds.</em></p>
+                        </div>
+                    </div>
+                    
+                        <div class="interview-remedy">
+                            <strong>Recommended Fix:</strong> Implement progressive disclosure: Remove registration gate, provide an instant sandbox/preview, and defer account creation until user attempts to save their work (Stored Value).
+                        </div>
+                    </div>
+                </details>
+                
+
+                <details class="interview-accordion">
+                    <summary><strong>The Anxious Professional</strong> — Dropped out at Day 0 (Root Itch: anxiety)</summary>
+                    <div class="accordion-body">
+                        
+                    <div class="interview-step">
+                        <div class="why-badge">Why 1</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Hello The Anxious Professional. Our telemetry shows you abandoned the application during initial onboarding. Why did you leave?</p>
+                            <p class="a"><strong>A:</strong> "I clicked the link expecting a quick solution, but was immediately confronted with a heavy setup flow."</p>
+                            <p class="diag"><em>Diagnosis: Initial Action Barrier (Fogg Ability Threshold Exceeded)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 2</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why did the setup flow feel so heavy?</p>
+                            <p class="a"><strong>A:</strong> "It demanded 1 input fields and forced account creation before I even saw what the tool actually did for me."</p>
+                            <p class="diag"><em>Diagnosis: Violation of Simplicity Sieve (Mental & Physical Effort Friction / TTV Delay)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 3</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why didn't the potential benefit justify taking 2 minutes to fill out those fields?</p>
+                            <p class="a"><strong>A:</strong> "Because I didn't have proof of value yet. Every modern app promises the world, but asking for my credentials upfront felt like homework."</p>
+                            <p class="diag"><em>Diagnosis: Asymmetric Investment Demand (Demanding Investment before Variable Reward)</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 4</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> Why were you looking for an application like this in that exact moment?</p>
+                            <p class="a"><strong>A:</strong> "I was feeling overwhelmed and rushed. I needed an instant answer, not a new software project to manage."</p>
+                            <p class="diag"><em>Diagnosis: Misalignment with User Context & Cognitive Bandwidth</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="interview-step">
+                        <div class="why-badge">Why 5</div>
+                        <div class="interview-dialogue">
+                            <p class="q"><strong>Q:</strong> What was the core underlying emotional itch you were trying to solve?</p>
+                            <p class="a"><strong>A:</strong> "Deep down, I felt acute anxiety. When your product added friction instead of soothing that discomfort, my subconscious reacted by closing the tab."</p>
+                            <p class="diag"><em>Diagnosis: ROOT CAUSE: Failure to relieve the internal trigger (anxiety) within 3 seconds.</em></p>
+                        </div>
+                    </div>
+                    
+                        <div class="interview-remedy">
+                            <strong>Recommended Fix:</strong> Implement progressive disclosure: Remove registration gate, provide an instant sandbox/preview, and defer account creation until user attempts to save their work (Stored Value).
+                        </div>
+                    </div>
+                </details>
+                
+    </div>
+
+    <!-- Riskiest Habit Assumption Tests (RAT) Section -->
+    <div class="section">
+        <h2 class="section-title">Riskiest Habit Assumption Tests (RAT Matrix)</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">
+            Empirical falsification hypotheses testing core habit assumptions before scaling spend.
+        </p>
+        <div class="card" style="overflow-x: auto; padding: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Core Habit Assumption</th>
+                        <th>Vulnerability Hypothesis</th>
+                        <th>Validation Telemetry Metric</th>
+                        <th>Failure Threshold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><span class="phase-tag">CORE LOOP</span></td>
+                <td><strong>Users will form an enduring habit despite zero accumulated switching costs or stored data.</strong></td>
+                <td><span class="badge warn">HIGH</span></td>
+                <td><code>Introduce post-reward auto-bookmarking and measure 30-day retention delta.</code></td>
+                <td><span style="color: #38bdf8;">>= 15% increase in Day-30 retention for users who store value.</span></td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Findings Table -->
+    <div class="section">
+        <h2 class="section-title">Audited Controls & Behavioral Findings (7)</h2>
+        <div class="card" style="overflow-x: auto; padding: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Control ID</th>
+                        <th>Phase</th>
+                        <th>Finding & Observation</th>
+                        <th>Verdict</th>
+                        <th>Severity</th>
+                        <th>Actionable Remediation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><code>HOOK-TRIG-01</code></td>
+                <td><span class="phase-tag">TRIGGER</span></td>
+                <td><strong>Owned Triggers Established</strong><br/><small>Active owned trigger scaffolding detected.</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Ensure notifications are context-aware and tied to teammate actions, not static marketing blasts.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-ACT-01</code></td>
+                <td><span class="phase-tag">ACTION</span></td>
+                <td><strong>Streamlined Action Interface</strong><br/><small>Action interface maintains concise input friction (1 inputs).</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Preserve single-click simplicity and social login shortcuts.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-ACT-05</code></td>
+                <td><span class="phase-tag">ACTION</span></td>
+                <td><strong>System 1 Intuitive Flow Activated</strong><br/><small>Action leverages System 1 fast heuristics without forcing painful deliberative pauses.</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Preserve low-cognitive-load defaults as product surface area expands.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-REW-02</code></td>
+                <td><span class="phase-tag">REWARD</span></td>
+                <td><strong>Infinite Variable Reward Engine</strong><br/><small>Infinite variability detected (Tribe social dynamics or algorithmic feed).</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Protect user autonomy; avoid slot-machine overstimulation that triggers fatigue or reactance.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-REW-05</code></td>
+                <td><span class="phase-tag">REWARD</span></td>
+                <td><strong>White Hat Empowerment Reward Dynamics</strong><br/><small>Rewards promote positive user agency, competence (Self), and community belonging (Tribe).</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Maintain focus on user flourishing; avoid dark scarcity or anxiety-driven countdown timers.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-INV-01</code></td>
+                <td><span class="phase-tag">INVESTMENT</span></td>
+                <td><strong>Zero Stored Value Mechanism (Leaky Bucket)</strong><br/><small>Users leave the product without investing data, content, or social capital. Zero switching costs created.</small></td>
+                <td><span class="badge fail">FAIL</span></td>
+                <td><span class="sev-tag" style="background-color: #ef444420; color: #ef4444; border: 1px solid #ef444440;">CRITICAL</span></td>
+                <td><div class="rec-text">Prompt users for micro-investments immediately after reward: save preferences, curate folders, invite collaborators.</div></td>
+            </tr>
+            
+
+            <tr>
+                <td><code>HOOK-ETH-01</code></td>
+                <td><span class="phase-tag">ETHICS</span></td>
+                <td><strong>Manipulation Matrix Alignment: Facilitator</strong><br/><small>Product aligns with the Facilitator quadrant (creates healthy, autonomous habits).</small></td>
+                <td><span class="badge pass">PASS</span></td>
+                <td><span class="sev-tag" style="background-color: #6b728020; color: #6b7280; border: 1px solid #6b728040;">INFO</span></td>
+                <td><div class="rec-text">Maintain user autonomy; never trap users or sacrifice transparency for short-term engagement.</div></td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

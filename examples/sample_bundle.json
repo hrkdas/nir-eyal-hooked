@@ -1,0 +1,623 @@
+{
+  "project_name": "sample-product",
+  "timestamp": "2026-09-27T20:55:06.328782Z",
+  "version": "1.0.0",
+  "overall_habit_health_score": 65,
+  "habit_zone": {
+    "frequency_score": 8.2,
+    "perceived_utility_score": 5.0,
+    "in_habit_zone": true,
+    "classification": "Vitamin Habit (High Frequency, Delight-Driven)"
+  },
+  "manipulation_matrix_quadrant": "facilitator",
+  "fogg_simplicity_score": 85,
+  "reward_entropy_score": 80,
+  "stored_value_score": 15,
+  "east_score": {
+    "easy": 0.72,
+    "attractive": 0.7,
+    "social": 0.55,
+    "timely": 0.7,
+    "overall": 0.67
+  },
+  "ttv_metrics": {
+    "estimated_ttv_seconds": 22,
+    "rating": "Instant (<25s)",
+    "friction_bottleneck": "None"
+  },
+  "rat_assumption": {
+    "hypothesis": "Users will form an enduring habit despite zero accumulated switching costs or stored data.",
+    "risk_level": "High",
+    "test_method": "Introduce post-reward auto-bookmarking and measure 30-day retention delta.",
+    "success_metric": ">= 15% increase in Day-30 retention for users who store value."
+  },
+  "hook_graph": {
+    "project_name": "sample-product",
+    "triggers": [
+      {
+        "id": "trig-push-1",
+        "name": "Push Notification Hook (NotificationWorker.ts)",
+        "trigger_type": "owned",
+        "description": "Automated push notification detected in worker or client handler",
+        "channel": "push_notification",
+        "internal_itch": null,
+        "is_recurring": true,
+        "source_reference": "src/NotificationWorker.ts",
+        "prompt_type": "signal",
+        "east_score": {
+          "easy": 0.85,
+          "attractive": 0.75,
+          "social": 0.6,
+          "timely": 0.8,
+          "overall": 0.75
+        }
+      },
+      {
+        "id": "trig-email-2",
+        "name": "Email Trigger (OnboardingWizard.tsx)",
+        "trigger_type": "owned",
+        "description": "Email dispatch routine identified",
+        "channel": "email",
+        "internal_itch": null,
+        "is_recurring": true,
+        "source_reference": "src/OnboardingWizard.tsx",
+        "prompt_type": "facilitator",
+        "east_score": {
+          "easy": 0.6,
+          "attractive": 0.65,
+          "social": 0.5,
+          "timely": 0.6,
+          "overall": 0.59
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "act-1",
+        "name": "User Action Flow in OnboardingWizard.tsx",
+        "description": "Action interface with 1 input fields detected (TTV: ~22s)",
+        "steps_count": 1,
+        "input_fields_count": 1,
+        "requires_auth_wall": false,
+        "requires_payment": false,
+        "fogg_friction_levers": [],
+        "source_reference": "src/OnboardingWizard.tsx",
+        "ttv_metrics": {
+          "estimated_ttv_seconds": 22,
+          "rating": "Instant (<25s)",
+          "friction_bottleneck": "None"
+        }
+      }
+    ],
+    "rewards": [
+      {
+        "id": "rew-tribe-1",
+        "name": "Tribe Reward: Social Validation (DiscoveryFeed.tsx)",
+        "reward_type": "tribe",
+        "is_variable": true,
+        "is_infinite_variability": true,
+        "dopamine_delivery_latency_seconds": 1.0,
+        "description": "Social validation, reactions, or community status mechanic",
+        "source_reference": "src/DiscoveryFeed.tsx",
+        "is_extrinsic_only": false,
+        "overjustification_risk": "low"
+      }
+    ],
+    "investments": [],
+    "loop_connected": false
+  },
+  "findings": [
+    {
+      "control_id": "HOOK-TRIG-01",
+      "phase": "trigger",
+      "title": "Owned Triggers Established",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Active owned trigger scaffolding detected.",
+      "evidence": "Discovered 2 owned trigger entry points.",
+      "recommendation": "Ensure notifications are context-aware and tied to teammate actions, not static marketing blasts.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-ACT-01",
+      "phase": "action",
+      "title": "Streamlined Action Interface",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Action interface maintains concise input friction (1 inputs).",
+      "evidence": "Input field count complies with Fogg simplicity guidelines.",
+      "recommendation": "Preserve single-click simplicity and social login shortcuts.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-ACT-05",
+      "phase": "action",
+      "title": "System 1 Intuitive Flow Activated",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Action leverages System 1 fast heuristics without forcing painful deliberative pauses.",
+      "evidence": "Concise input path (1 fields) enables seamless subconscious execution.",
+      "recommendation": "Preserve low-cognitive-load defaults as product surface area expands.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-REW-02",
+      "phase": "reward",
+      "title": "Infinite Variable Reward Engine",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Infinite variability detected (Tribe social dynamics or algorithmic feed).",
+      "evidence": "Infinite variability supported by ['Tribe Reward: Social Validation (DiscoveryFeed.tsx)'].",
+      "recommendation": "Protect user autonomy; avoid slot-machine overstimulation that triggers fatigue or reactance.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-REW-05",
+      "phase": "reward",
+      "title": "White Hat Empowerment Reward Dynamics",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Rewards promote positive user agency, competence (Self), and community belonging (Tribe).",
+      "evidence": "Empowerment and social validation mechanisms detected rather than predatory loss addiction.",
+      "recommendation": "Maintain focus on user flourishing; avoid dark scarcity or anxiety-driven countdown timers.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-INV-01",
+      "phase": "investment",
+      "title": "Zero Stored Value Mechanism (Leaky Bucket)",
+      "verdict": "fail",
+      "severity": "critical",
+      "observation": "Users leave the product without investing data, content, or social capital. Zero switching costs created.",
+      "evidence": "Codebase scan found no stored value accumulation.",
+      "recommendation": "Prompt users for micro-investments immediately after reward: save preferences, curate folders, invite collaborators.",
+      "code_patch_target": null
+    },
+    {
+      "control_id": "HOOK-ETH-01",
+      "phase": "ethics",
+      "title": "Manipulation Matrix Alignment: Facilitator",
+      "verdict": "pass",
+      "severity": "info",
+      "observation": "Product aligns with the Facilitator quadrant (creates healthy, autonomous habits).",
+      "evidence": "No deceptive cancellation mazes, roach motels, or predatory loops detected.",
+      "recommendation": "Maintain user autonomy; never trap users or sacrifice transparency for short-term engagement.",
+      "code_patch_target": null
+    }
+  ],
+  "simulation_results": {
+    "total_initial_users": 500,
+    "total_day30_retained": 20,
+    "overall_retention_rate": 0.04,
+    "cohort_summaries": {
+      "casual_novice": {
+        "display_name": "The Casual Novice",
+        "initial": 100,
+        "retained_day30": 2,
+        "day30_retention_rate": 0.02,
+        "history": {
+          "Day 0": 53,
+          "Day 1": 24,
+          "Day 3": 8,
+          "Day 7": 4,
+          "Day 30": 2
+        }
+      },
+      "anxious_professional": {
+        "display_name": "The Anxious Professional",
+        "initial": 100,
+        "retained_day30": 5,
+        "day30_retention_rate": 0.05,
+        "history": {
+          "Day 0": 85,
+          "Day 1": 55,
+          "Day 3": 21,
+          "Day 7": 13,
+          "Day 30": 5
+        }
+      },
+      "cynical_skeptic": {
+        "display_name": "The Cynical Skeptic",
+        "initial": 100,
+        "retained_day30": 3,
+        "day30_retention_rate": 0.03,
+        "history": {
+          "Day 0": 74,
+          "Day 1": 41,
+          "Day 3": 14,
+          "Day 7": 8,
+          "Day 30": 3
+        }
+      },
+      "power_devotee": {
+        "display_name": "The Power Devotee",
+        "initial": 100,
+        "retained_day30": 8,
+        "day30_retention_rate": 0.08,
+        "history": {
+          "Day 0": 90,
+          "Day 1": 62,
+          "Day 3": 31,
+          "Day 7": 20,
+          "Day 30": 8
+        }
+      },
+      "busy_multitasker": {
+        "display_name": "The Busy Multitasker",
+        "initial": 100,
+        "retained_day30": 2,
+        "day30_retention_rate": 0.02,
+        "history": {
+          "Day 0": 64,
+          "Day 1": 32,
+          "Day 3": 11,
+          "Day 7": 6,
+          "Day 30": 2
+        }
+      }
+    },
+    "round_timeline": [
+      {
+        "round_id": "Day 0",
+        "cohort_name": "The Casual Novice",
+        "starting_users": 100,
+        "active_users": 53,
+        "dropouts": 47,
+        "retention_rate": 0.53,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 1",
+        "cohort_name": "The Casual Novice",
+        "starting_users": 53,
+        "active_users": 24,
+        "dropouts": 29,
+        "retention_rate": 0.453,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 3",
+        "cohort_name": "The Casual Novice",
+        "starting_users": 24,
+        "active_users": 8,
+        "dropouts": 16,
+        "retention_rate": 0.333,
+        "dropoff_reasons": [
+          "Zero stored value: User had no investment or switching costs tying them to app"
+        ]
+      },
+      {
+        "round_id": "Day 7",
+        "cohort_name": "The Casual Novice",
+        "starting_users": 8,
+        "active_users": 4,
+        "dropouts": 4,
+        "retention_rate": 0.5,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 30",
+        "cohort_name": "The Casual Novice",
+        "starting_users": 4,
+        "active_users": 2,
+        "dropouts": 2,
+        "retention_rate": 0.5,
+        "dropoff_reasons": [
+          "Failure to bridge external prompt to internal emotional itch"
+        ]
+      },
+      {
+        "round_id": "Day 0",
+        "cohort_name": "The Anxious Professional",
+        "starting_users": 100,
+        "active_users": 85,
+        "dropouts": 15,
+        "retention_rate": 0.85,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 1",
+        "cohort_name": "The Anxious Professional",
+        "starting_users": 85,
+        "active_users": 55,
+        "dropouts": 30,
+        "retention_rate": 0.647,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 3",
+        "cohort_name": "The Anxious Professional",
+        "starting_users": 55,
+        "active_users": 21,
+        "dropouts": 34,
+        "retention_rate": 0.382,
+        "dropoff_reasons": [
+          "Zero stored value: User had no investment or switching costs tying them to app"
+        ]
+      },
+      {
+        "round_id": "Day 7",
+        "cohort_name": "The Anxious Professional",
+        "starting_users": 21,
+        "active_users": 13,
+        "dropouts": 8,
+        "retention_rate": 0.619,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 30",
+        "cohort_name": "The Anxious Professional",
+        "starting_users": 13,
+        "active_users": 5,
+        "dropouts": 8,
+        "retention_rate": 0.385,
+        "dropoff_reasons": [
+          "Failure to bridge external prompt to internal emotional itch"
+        ]
+      },
+      {
+        "round_id": "Day 0",
+        "cohort_name": "The Cynical Skeptic",
+        "starting_users": 100,
+        "active_users": 74,
+        "dropouts": 26,
+        "retention_rate": 0.74,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 1",
+        "cohort_name": "The Cynical Skeptic",
+        "starting_users": 74,
+        "active_users": 41,
+        "dropouts": 33,
+        "retention_rate": 0.554,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 3",
+        "cohort_name": "The Cynical Skeptic",
+        "starting_users": 41,
+        "active_users": 14,
+        "dropouts": 27,
+        "retention_rate": 0.341,
+        "dropoff_reasons": [
+          "Zero stored value: User had no investment or switching costs tying them to app"
+        ]
+      },
+      {
+        "round_id": "Day 7",
+        "cohort_name": "The Cynical Skeptic",
+        "starting_users": 14,
+        "active_users": 8,
+        "dropouts": 6,
+        "retention_rate": 0.571,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 30",
+        "cohort_name": "The Cynical Skeptic",
+        "starting_users": 8,
+        "active_users": 3,
+        "dropouts": 5,
+        "retention_rate": 0.375,
+        "dropoff_reasons": [
+          "Failure to bridge external prompt to internal emotional itch"
+        ]
+      },
+      {
+        "round_id": "Day 0",
+        "cohort_name": "The Power Devotee",
+        "starting_users": 100,
+        "active_users": 90,
+        "dropouts": 10,
+        "retention_rate": 0.9,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 1",
+        "cohort_name": "The Power Devotee",
+        "starting_users": 90,
+        "active_users": 62,
+        "dropouts": 28,
+        "retention_rate": 0.689,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 3",
+        "cohort_name": "The Power Devotee",
+        "starting_users": 62,
+        "active_users": 31,
+        "dropouts": 31,
+        "retention_rate": 0.5,
+        "dropoff_reasons": [
+          "Zero stored value: User had no investment or switching costs tying them to app"
+        ]
+      },
+      {
+        "round_id": "Day 7",
+        "cohort_name": "The Power Devotee",
+        "starting_users": 31,
+        "active_users": 20,
+        "dropouts": 11,
+        "retention_rate": 0.645,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 30",
+        "cohort_name": "The Power Devotee",
+        "starting_users": 20,
+        "active_users": 8,
+        "dropouts": 12,
+        "retention_rate": 0.4,
+        "dropoff_reasons": [
+          "Failure to bridge external prompt to internal emotional itch"
+        ]
+      },
+      {
+        "round_id": "Day 0",
+        "cohort_name": "The Busy Multitasker",
+        "starting_users": 100,
+        "active_users": 64,
+        "dropouts": 36,
+        "retention_rate": 0.64,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 1",
+        "cohort_name": "The Busy Multitasker",
+        "starting_users": 64,
+        "active_users": 32,
+        "dropouts": 32,
+        "retention_rate": 0.5,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 3",
+        "cohort_name": "The Busy Multitasker",
+        "starting_users": 32,
+        "active_users": 11,
+        "dropouts": 21,
+        "retention_rate": 0.344,
+        "dropoff_reasons": [
+          "Zero stored value: User had no investment or switching costs tying them to app"
+        ]
+      },
+      {
+        "round_id": "Day 7",
+        "cohort_name": "The Busy Multitasker",
+        "starting_users": 11,
+        "active_users": 6,
+        "dropouts": 5,
+        "retention_rate": 0.545,
+        "dropoff_reasons": []
+      },
+      {
+        "round_id": "Day 30",
+        "cohort_name": "The Busy Multitasker",
+        "starting_users": 6,
+        "active_users": 2,
+        "dropouts": 4,
+        "retention_rate": 0.333,
+        "dropoff_reasons": [
+          "Failure to bridge external prompt to internal emotional itch"
+        ]
+      }
+    ],
+    "empirical_comparison": {
+      "rounds": [
+        {
+          "round_id": "Day 0",
+          "simulated_retention_pct": 73.2,
+          "empirical_retention_pct": 100.0,
+          "delta_pct": 26.8
+        },
+        {
+          "round_id": "Day 1",
+          "simulated_retention_pct": 42.8,
+          "empirical_retention_pct": 46.2,
+          "delta_pct": 3.4
+        },
+        {
+          "round_id": "Day 3",
+          "simulated_retention_pct": 17.0,
+          "empirical_retention_pct": 23.5,
+          "delta_pct": 6.5
+        },
+        {
+          "round_id": "Day 7",
+          "simulated_retention_pct": 10.2,
+          "empirical_retention_pct": 14.8,
+          "delta_pct": 4.6
+        },
+        {
+          "round_id": "Day 30",
+          "simulated_retention_pct": 4.0,
+          "empirical_retention_pct": 8.5,
+          "delta_pct": 4.5
+        }
+      ],
+      "summary": "Actual empirical retention tracks baseline expectations"
+    },
+    "churn_interviews": [
+      {
+        "persona_name": "The Casual Novice",
+        "archetype": "casual_novice",
+        "dropoff_round": "Day 0",
+        "root_internal_itch": "boredom",
+        "steps": [
+          {
+            "why_level": 1,
+            "interviewer_question": "Hello The Casual Novice. Our telemetry shows you abandoned the application during initial onboarding. Why did you leave?",
+            "persona_response": "I clicked the link expecting a quick solution, but was immediately confronted with a heavy setup flow.",
+            "behavioral_diagnosis": "Initial Action Barrier (Fogg Ability Threshold Exceeded)"
+          },
+          {
+            "why_level": 2,
+            "interviewer_question": "Why did the setup flow feel so heavy?",
+            "persona_response": "It demanded 1 input fields and forced account creation before I even saw what the tool actually did for me.",
+            "behavioral_diagnosis": "Violation of Simplicity Sieve (Mental & Physical Effort Friction / TTV Delay)"
+          },
+          {
+            "why_level": 3,
+            "interviewer_question": "Why didn't the potential benefit justify taking 2 minutes to fill out those fields?",
+            "persona_response": "Because I didn't have proof of value yet. Every modern app promises the world, but asking for my credentials upfront felt like homework.",
+            "behavioral_diagnosis": "Asymmetric Investment Demand (Demanding Investment before Variable Reward)"
+          },
+          {
+            "why_level": 4,
+            "interviewer_question": "Why were you looking for an application like this in that exact moment?",
+            "persona_response": "I was feeling overwhelmed and rushed. I needed an instant answer, not a new software project to manage.",
+            "behavioral_diagnosis": "Misalignment with User Context & Cognitive Bandwidth"
+          },
+          {
+            "why_level": 5,
+            "interviewer_question": "What was the core underlying emotional itch you were trying to solve?",
+            "persona_response": "Deep down, I felt acute boredom. When your product added friction instead of soothing that discomfort, my subconscious reacted by closing the tab.",
+            "behavioral_diagnosis": "ROOT CAUSE: Failure to relieve the internal trigger (boredom) within 3 seconds."
+          }
+        ],
+        "actionable_remediation": "Implement progressive disclosure: Remove registration gate, provide an instant sandbox/preview, and defer account creation until user attempts to save their work (Stored Value)."
+      },
+      {
+        "persona_name": "The Anxious Professional",
+        "archetype": "anxious_professional",
+        "dropoff_round": "Day 0",
+        "root_internal_itch": "anxiety",
+        "steps": [
+          {
+            "why_level": 1,
+            "interviewer_question": "Hello The Anxious Professional. Our telemetry shows you abandoned the application during initial onboarding. Why did you leave?",
+            "persona_response": "I clicked the link expecting a quick solution, but was immediately confronted with a heavy setup flow.",
+            "behavioral_diagnosis": "Initial Action Barrier (Fogg Ability Threshold Exceeded)"
+          },
+          {
+            "why_level": 2,
+            "interviewer_question": "Why did the setup flow feel so heavy?",
+            "persona_response": "It demanded 1 input fields and forced account creation before I even saw what the tool actually did for me.",
+            "behavioral_diagnosis": "Violation of Simplicity Sieve (Mental & Physical Effort Friction / TTV Delay)"
+          },
+          {
+            "why_level": 3,
+            "interviewer_question": "Why didn't the potential benefit justify taking 2 minutes to fill out those fields?",
+            "persona_response": "Because I didn't have proof of value yet. Every modern app promises the world, but asking for my credentials upfront felt like homework.",
+            "behavioral_diagnosis": "Asymmetric Investment Demand (Demanding Investment before Variable Reward)"
+          },
+          {
+            "why_level": 4,
+            "interviewer_question": "Why were you looking for an application like this in that exact moment?",
+            "persona_response": "I was feeling overwhelmed and rushed. I needed an instant answer, not a new software project to manage.",
+            "behavioral_diagnosis": "Misalignment with User Context & Cognitive Bandwidth"
+          },
+          {
+            "why_level": 5,
+            "interviewer_question": "What was the core underlying emotional itch you were trying to solve?",
+            "persona_response": "Deep down, I felt acute anxiety. When your product added friction instead of soothing that discomfort, my subconscious reacted by closing the tab.",
+            "behavioral_diagnosis": "ROOT CAUSE: Failure to relieve the internal trigger (anxiety) within 3 seconds."
+          }
+        ],
+        "actionable_remediation": "Implement progressive disclosure: Remove registration gate, provide an instant sandbox/preview, and defer account creation until user attempts to save their work (Stored Value)."
+      }
+    ]
+  },
+  "summary_verdict": "Moderate Habit Potential (65/100). Core loops exist but user friction or reward fatigue limits automaticity."
+}

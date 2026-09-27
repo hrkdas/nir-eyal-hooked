@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Run Unit & E2E Tests
+      run: |
+        python -m unittest discover -s tests -v
+
+    - name: Test CLI Help & Binary Wrapper
+      run: |
+        ./bin/hook-engine --help
+        python -m hook_engine --help
+
+    - name: Test Sample Product Audit
+      run: |
+        ./bin/hook-engine audit ./examples/sample-product --html /tmp/ci_report.html --json /tmp/ci_bundle.json --diff
