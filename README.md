@@ -233,7 +233,6 @@ product myself?          +---------------------+---------------------+
 │   ├── sample_report.html             # Standalone interactive dashboard
 │   ├── sample_bundle.json             # Complete JSON audit bundle
 │   └── sample_telemetry.json          # Mixpanel/PostHog retention export
-├── launch/                            # Launch kits: Show HN, Twitter thread, Reddit, LinkedIn
 ├── hook_engine/                       # Core Python engine (Zero dependencies)
 │   ├── __init__.py
 │   ├── cli.py                         # Unified CLI runner

@@ -43,3 +43,7 @@ htmlcov/
 output/
 report_*.html
 hook_audit_bundle.json
+
+# Private launch & marketing strategies (do not publish)
+launch/
+*.strategy.md
