@@ -60,33 +60,56 @@ flowchart LR
 
 ---
 
-## 🚀 Quickstart (CLI)
+## 🚀 Quickstart
 
-### 1. Requirements
-* Python $\ge 3.10$ (No external packages required; uses Python standard library `sqlite3`, `dataclasses`, `json`, `pathlib`, `re`).
+### 1. Install
 
-### 2. Run Full Behavioral Audit
-Audit an entire project, generate an interactive HTML dashboard, calibrate with empirical telemetry, and print remediation diffs:
-
+**Option A — Clone & run directly** (no install needed):
 ```bash
-# Audit a codebase or documentation folder
-python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --diff
+git clone https://github.com/hrkdas/nir-eyal-hooked.git
+cd nir-eyal-hooked
 
-# Audit calibrated with Mixpanel / PostHog retention telemetry export
-python3 -m hook_engine audit ./my-app --telemetry retention.json --html report.html --diff
+# Run via the bin wrapper (works on macOS Homebrew Python without venv)
+./bin/hook-engine audit ./my-app --html report.html
 ```
 
-### 3. Subcommands
+**Option B — pip install** (recommended for global CLI access):
+```bash
+git clone https://github.com/hrkdas/nir-eyal-hooked.git
+cd nir-eyal-hooked
+pip install .          # or: pip install -e . (editable)
+hook-engine audit ./my-app --html report.html
+```
+
+> **macOS Homebrew note:** If `pip install` fails with `externally-managed-environment`, either use `pip install --break-system-packages .` or use Option A above.
+
+### 2. Requirements
+* Python ≥ 3.10 — **zero external dependencies** (stdlib only: `dataclasses`, `json`, `pathlib`, `re`).
+
+### 3. Run Full Behavioral Audit
 
 ```bash
-# 1. Scan codebase for Hook components (Triggers, Actions, Rewards, Investments)
-python3 -m hook_engine scan ./my-app
+# Full audit with HTML dashboard and remediation diffs
+hook-engine audit ./my-app --html report.html --json bundle.json --diff
 
-# 2. Run 30-day multi-cohort retention simulation (optionally with real telemetry calibration)
-python3 -m hook_engine simulate ./my-app --users 100 --telemetry retention.json
+# Or without installing (from the repo root)
+python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --diff
 
-# 3. Generate actionable code and copy remediation diffs (Endowed Progress, Fogg simplification)
-python3 -m hook_engine diff ./my-app
+# Calibrate with Mixpanel / PostHog retention telemetry export
+hook-engine audit ./my-app --telemetry retention.json --html report.html --diff
+```
+
+### 4. Subcommands
+
+```bash
+# Scan codebase for Hook components (Triggers, Actions, Rewards, Investments)
+hook-engine scan ./my-app
+
+# Run 30-day multi-cohort retention simulation
+hook-engine simulate ./my-app --users 100 --telemetry retention.json
+
+# Generate actionable code and copy remediation diffs
+hook-engine diff ./my-app
 ```
 
 ---
@@ -181,8 +204,11 @@ product myself?          +---------------------+---------------------+
 
 ```
 .
-├── ARCHITECTURE_PLAN.md               # Master system engineering blueprint
+├── LICENSE                            # MIT license
 ├── README.md                          # Public documentation & skill guide
+├── pyproject.toml                     # Standard Python packaging (pip install .)
+├── bin/
+│   └── hook-engine                    # Standalone CLI wrapper (no install needed)
 ├── hook_engine/                       # Core Python engine (Zero dependencies)
 │   ├── __init__.py
 │   ├── cli.py                         # Unified CLI runner
