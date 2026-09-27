@@ -103,6 +103,31 @@ class TestHookEngineE2E(unittest.TestCase):
         exit_code_diff = main(["diff", str(self.app_dir)])
         self.assertEqual(exit_code_diff, 0)
 
+    def test_cli_audit_with_telemetry(self):
+        tel_file = Path(self.test_dir) / "mixpanel_export.json"
+        tel_file.write_text(json.dumps({
+            "Day 0": 100.0,
+            "Day 1": 45.0,
+            "Day 3": 22.0,
+            "Day 7": 14.0,
+            "Day 30": 8.5
+        }))
+
+        json_out = str(Path(self.test_dir) / "bundle_with_telemetry.json")
+        exit_code = main([
+            "audit", str(self.app_dir),
+            "--telemetry", str(tel_file),
+            "--json", json_out
+        ])
+        self.assertEqual(exit_code, 0)
+
+        data = json.loads(Path(json_out).read_text(encoding="utf-8"))
+        self.assertIn("empirical_comparison", data["simulation_results"])
+        rounds = data["simulation_results"]["empirical_comparison"]["rounds"]
+        self.assertEqual(len(rounds), 5)
+        d1 = next(r for r in rounds if r["round_id"] == "Day 1")
+        self.assertEqual(d1["empirical_retention_pct"], 45.0)
+
 
 if __name__ == "__main__":
     unittest.main()

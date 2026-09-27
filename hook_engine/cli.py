@@ -34,6 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--json", help="Path to write JSON audit bundle", default=None)
     audit_parser.add_argument("--diff", action="store_true", help="Print remediation code/copy diffs")
     audit_parser.add_argument("--no-sim", action="store_true", help="Skip 30-day cohort simulation")
+    audit_parser.add_argument("--telemetry", help="Path to JSON file containing empirical retention telemetry", default=None)
 
     # Command: scan
     scan_parser = subparsers.add_parser("scan", help="Scan codebase and extract Hook Graph")
@@ -43,6 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     sim_parser = subparsers.add_parser("simulate", help="Run 30-day multi-cohort retention simulation")
     sim_parser.add_argument("target", help="Path to project directory or file")
     sim_parser.add_argument("--users", type=int, default=100, help="Initial population per cohort")
+    sim_parser.add_argument("--telemetry", help="Path to JSON file containing empirical retention telemetry", default=None)
 
     # Command: diff
     diff_parser = subparsers.add_parser("diff", help="Generate code & copy remediation diffs")
@@ -55,6 +57,19 @@ def cmd_audit(args: argparse.Namespace) -> int:
     target = Path(args.target).resolve()
     print(f"\n[HookEngine] Running behavioral audit on: {target.name} ({target})")
 
+    empirical_data = None
+    if getattr(args, "telemetry", None):
+        tel_path = Path(args.telemetry).resolve()
+        if tel_path.exists():
+            import json
+            try:
+                empirical_data = json.loads(tel_path.read_text(encoding="utf-8"))
+                print(f"  > Loaded empirical retention telemetry from: {tel_path.name}")
+            except Exception as e:
+                print(f"  [!] Warning: Failed to parse telemetry file {tel_path}: {e}")
+        else:
+            print(f"  [!] Warning: Telemetry file not found at: {tel_path}")
+
     # 1. Scan
     scanner = CodebaseScanner(str(target))
     graph = scanner.scan()
@@ -63,7 +78,11 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     # 2. Build Report Bundle
     builder = AuditReportBuilder(graph)
-    bundle = builder.build(run_simulation=not args.no_sim, run_interviews=not args.no_sim)
+    bundle = builder.build(
+        run_simulation=not args.no_sim,
+        run_interviews=not args.no_sim,
+        empirical_telemetry=empirical_data,
+    )
 
     # 3. Print Executive Summary
     print("\n" + "=" * 60)
@@ -74,6 +93,15 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print(f"  FOGG SIMPLICITY:      {bundle.fogg_simplicity_score} / 100")
     print(f"  REWARD ENTROPY:       {bundle.reward_entropy_score} / 100")
     print(f"  STORED VALUE:         {bundle.stored_value_score} / 100")
+    if bundle.east_score:
+        e = bundle.east_score
+        print(f"  EAST SCORE:           {e.overall*100:.0f} / 100 (E:{e.easy*100:.0f} A:{e.attractive*100:.0f} S:{e.social*100:.0f} T:{e.timely*100:.0f})")
+    if bundle.ttv_metrics:
+        t = bundle.ttv_metrics
+        print(f"  TTV STOPWATCH:        ~{t.estimated_ttv_seconds}s ({t.rating})")
+    if bundle.rat_assumption:
+        r = bundle.rat_assumption
+        print(f"  RAT HYPOTHESIS:       [{r.risk_level.upper()}] {r.hypothesis}")
     print("=" * 60)
 
     print(f"\nSummary Verdict: {bundle.summary_verdict}")
@@ -91,6 +119,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
         for k, c in sim["cohort_summaries"].items():
             rate = c.get("day30_retention_rate", 0.0) * 100
             print(f"  * {c.get('display_name', k):<24} : {rate:>5.1f}% retained (Started {c.get('initial')})")
+
+    # Empirical comparison if available
+    if sim and sim.get("empirical_comparison"):
+        print("\nEmpirical Telemetry Calibration:")
+        for r in sim["empirical_comparison"].get("rounds", []):
+            emp_str = f"{r['empirical_retention_pct']:.1f}%" if r['empirical_retention_pct'] is not None else "N/A"
+            delta_str = f"({r['delta_pct']:+.1f}%)" if r['delta_pct'] is not None else ""
+            print(f"  * {r['round_id']:<8} : Simulated={r['simulated_retention_pct']:>5.1f}% | Actual={emp_str:<6} {delta_str}")
 
     # Export JSON
     if args.json:
@@ -150,8 +186,18 @@ def cmd_simulate(args: argparse.Namespace) -> int:
     scanner = CodebaseScanner(str(target))
     graph = scanner.scan()
 
+    empirical_data = None
+    if getattr(args, "telemetry", None):
+        tel_path = Path(args.telemetry).resolve()
+        if tel_path.exists():
+            import json
+            try:
+                empirical_data = json.loads(tel_path.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"  [!] Warning: Failed to parse telemetry file {tel_path}: {e}")
+
     cohorts = get_default_cohorts(population_per_cohort=args.users)
-    sim = LifecycleSimulator(graph, cohorts=cohorts)
+    sim = LifecycleSimulator(graph, cohorts=cohorts, empirical_telemetry=empirical_data)
     res = sim.run()
 
     print(f"\n[HookEngine] 30-Day Cohort Simulation for {graph.project_name}")
@@ -162,6 +208,13 @@ def cmd_simulate(args: argparse.Namespace) -> int:
         curve_str = " -> ".join(f"{round_id}:{count}" for round_id, count in hist.items())
         print(f"\nCohort: {c.get('display_name')}")
         print(f"  Trajectory: {curve_str}")
+
+    if res.empirical_comparison:
+        print("\nEmpirical Telemetry Calibration:")
+        for r in res.empirical_comparison.get("rounds", []):
+            emp_str = f"{r['empirical_retention_pct']:.1f}%" if r['empirical_retention_pct'] is not None else "N/A"
+            delta_str = f"({r['delta_pct']:+.1f}%)" if r['delta_pct'] is not None else ""
+            print(f"  * {r['round_id']:<8} : Simulated={r['simulated_retention_pct']:>5.1f}% | Actual={emp_str:<6} {delta_str}")
 
     return 0
 

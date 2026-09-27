@@ -40,14 +40,23 @@ python3 -m hook_engine scan "<target-path>"
 Evaluate the project against Nir Eyal's quantitative frameworks:
 - **Habit Zone Coordinate**: Maps Frequency vs. Perceived Utility (Painkiller vs. Vitamin).
 - **Fogg Simplicity Sieve ($B = MAT$)**: Scores friction across Time, Money, Effort, and Mental Load.
-- **Reward Entropy**: Checks whether variable rewards are infinite (sustainable) or finite (dopamine burnout).
+- **EAST Framework Diagnostic**: Scores Easy (defaults), Attractive (salience), Social (tribe), and Timely (prompts).
+- **Time-to-Value (TTV) Stopwatch**: Estimates simulated latency from landing to first value delivery (Instant $\le 20\text{s}$, Moderate $21-45\text{s}$, Friction $>45\text{s}$).
+- **Reward Entropy & Overjustification Defense**: Evaluates dopamine variability (Tribe, Hunt, Self) and guards against extrinsic point decay.
+- **Riskiest Habit Assumption Testing (RAT)**: Generates empirical falsification hypotheses for critical habit assumptions before scaling spend.
 - **Manipulation Matrix**: Verifies ethical positioning (Facilitator vs. Dealer).
 
-### Step 3: Run Multi-Agent Cohort Simulation (Day 0 to Day 30)
+### Step 3: Run Multi-Agent Cohort Simulation & Empirical Telemetry Calibration
 Simulates five realistic user archetypes (Casual Novice, Anxious Pro, Cynic, Power Devotee, Busy Multitasker) progressing through the 4 phases over 30 days:
 
 ```bash
 python3 -m hook_engine simulate "<target-path>"
+```
+
+Optionally calibrate against real Mixpanel/PostHog cohort telemetry:
+
+```bash
+python3 -m hook_engine simulate "<target-path>" --telemetry retention.json
 ```
 
 ### Step 4: Interrogate Churned Users ("5 Whys")
@@ -57,7 +66,7 @@ For cohorts that experience high attrition, conduct autonomous qualitative "5 Wh
 Generate a versioned JSON bundle, a standalone interactive HTML dashboard, and unified git diffs:
 
 ```bash
-python3 -m hook_engine audit "<target-path>" --html report.html --json bundle.json --diff
+python3 -m hook_engine audit "<target-path>" --html report.html --json bundle.json --diff --telemetry retention.json
 ```
 
 ---
@@ -75,14 +84,17 @@ python3 -m hook_engine audit "<target-path>" --html report.html --json bundle.js
 | **4. Investment** | `references/05_stored_value_types.md` | IKEA effect; 5 Stored Value types; Priming the next trigger |
 | **5. Ethics** | `references/06_manipulation_matrix.md` | Facilitator, Peddler, Entertainer, Dealer; Dark patterns & Sludge |
 | **6. Playbook** | `references/07_builder_playbook.md` | 5 Core Questions; Identify-Codify-Modify habit testing |
+| **7. Behavioral** | `references/08_east_and_ttv_framework.md`| EAST framework, TTV Stopwatch, Overjustification effect, RAT matrix |
 
 ---
 
 ## Required Output Schema
 
 Every complete audit must output:
-1. **Executive Habit Health Score** (0 - 100) and Habit Zone coordinate ($x, y$).
-2. **The 4 Hook Phases Scorecard** with Pass/Warn/Fail verdicts.
-3. **Cohort Retention Waterfall** showing Day 0 to Day 30 survival.
-4. **Synthetic Churn Interview Transcript** with the 5 Whys.
-5. **Actionable Remediation Diffs** (copy revisions and UI simplification).
+1. **Executive Habit Health Score** (0 - 100), EAST Score, and Habit Zone coordinate ($x, y$).
+2. **Time-to-Value (TTV) Stopwatch & RAT Hypotheses**.
+3. **The 4 Hook Phases Scorecard** with Pass/Warn/Fail verdicts.
+4. **Cohort Retention Waterfall** showing Day 0 to Day 30 survival (with empirical telemetry calibration if provided).
+5. **Synthetic Churn Interview Transcript** with the 5 Whys.
+6. **Actionable Remediation Diffs** (Endowed Progress wizard, copy revisions, and UI simplification).
+

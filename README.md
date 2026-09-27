@@ -66,11 +66,14 @@ flowchart LR
 * Python $\ge 3.10$ (No external packages required; uses Python standard library `sqlite3`, `dataclasses`, `json`, `pathlib`, `re`).
 
 ### 2. Run Full Behavioral Audit
-Audit an entire project, generate an interactive HTML dashboard, and print remediation diffs:
+Audit an entire project, generate an interactive HTML dashboard, calibrate with empirical telemetry, and print remediation diffs:
 
 ```bash
 # Audit a codebase or documentation folder
 python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --diff
+
+# Audit calibrated with Mixpanel / PostHog retention telemetry export
+python3 -m hook_engine audit ./my-app --telemetry retention.json --html report.html --diff
 ```
 
 ### 3. Subcommands
@@ -79,12 +82,41 @@ python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --di
 # 1. Scan codebase for Hook components (Triggers, Actions, Rewards, Investments)
 python3 -m hook_engine scan ./my-app
 
-# 2. Run 30-day multi-cohort retention simulation
-python3 -m hook_engine simulate ./my-app --users 100
+# 2. Run 30-day multi-cohort retention simulation (optionally with real telemetry calibration)
+python3 -m hook_engine simulate ./my-app --users 100 --telemetry retention.json
 
-# 3. Generate actionable code and copy remediation diffs
+# 3. Generate actionable code and copy remediation diffs (Endowed Progress, Fogg simplification)
 python3 -m hook_engine diff ./my-app
 ```
+
+---
+
+## 🔬 Behavioral Frameworks Integrated
+
+Beyond Nir Eyal's foundational 4 phases, HookEngine integrates proven behavioral paradigms validated by top product teams:
+
+### 1. The EAST Framework (UK Behavioural Insights Team)
+To form a habit, the target behavior must be made:
+* **Easy**: Frictionless default paths, progressive disclosure, 1-click execution.
+* **Attractive**: Salient visual cues, immediate dopamine anticipation.
+* **Social**: Tribe rewards, peer activity, shared milestones.
+* **Timely**: Prompts arrive at the precise moment of user receptivity; triggers are primed by prior investments.
+
+### 2. Time-to-Value (TTV) Stopwatch & Endowed Progress
+Measures wall-clock latency from first touch to the user's **Aha! moment**:
+* **Instant ($\le 20\text{s}$)**: Maximum habit activation momentum.
+* **Moderate ($21 - 45\text{s}$)**: Acceptable for complex enterprise setups.
+* **High Friction ($> 45\text{s}$)**: Trigger drop-off cliff. Remediated via **Endowed Progress Wizards** (giving users head-start progress at Step 2 of 3).
+
+### 3. The Overjustification Effect Defense (Deci / Lepper)
+Extrinsic point and badge systems crowd out internal motivation over 30 days. HookEngine flags superficial point tickers and generates patches transforming them into intrinsic competence feedback and social proof.
+
+### 4. Riskiest Habit Assumption Testing (RAT)
+Automatically formulates testable falsification hypotheses for your product's riskiest behavioral bets before you scale acquisition spend.
+
+### 5. Empirical Telemetry Calibration
+Supply a JSON export from Mixpanel, PostHog, or Amplitude (`{"Day 0": 100, "Day 1": 45, "Day 3": 22, "Day 7": 14, "Day 30": 8}`) to automatically overlay real retention against the simulated curve and highlight delta variances in the interactive HTML dashboard.
+
 
 ---
 
@@ -169,7 +201,7 @@ product myself?          +---------------------+---------------------+
 ├── skills/
 │   └── hooked/                        # agentskills.io standard skill package
 │       ├── SKILL.md                   # Skill entrypoint & agent contract
-│       ├── references/                # Token-lean modular knowledge sheets (01-07)
+│       ├── references/                # Token-lean modular knowledge sheets (01-08)
 │       └── templates/                 # JSON schema & sample bundles
 ├── tests/                             # Full test suite (Scanner, Scorer, Simulation, E2E)
 ├── chapters/                          # Source book chapter-by-chapter distillation
@@ -190,13 +222,14 @@ python3 -m unittest discover tests
 
 ## 📖 Deep Reference & Ideology Library
 
-This repository contains an exhaustive distillation of Nir Eyal's source writings:
+This repository contains an exhaustive distillation of Nir Eyal's source writings and proven behavioral models:
 
 * [**Ideology 01: The Hook Philosophy**](ideology/01-the-hook-philosophy.md) — CLTV, Pricing Power, The 9x Rule, Mind Monopolies.
 * [**Ideology 02: Behavioral Psychology**](ideology/02-behavioral-psychology.md) — System 1 vs 2, BJ Fogg Model, Dopamine neurobiology.
 * [**Ideology 03: The Hook Mechanics**](ideology/03-the-hook-mechanics.md) — The 4 phases, External vs Internal triggers, Stored Value.
 * [**Ideology 04: The Manipulation Matrix**](ideology/04-the-manipulation-matrix.md) — Ethics, Habit vs Addiction, The 2x2 Matrix.
 * [**Ideology 05: The Builder's Playbook**](ideology/05-the-builder-playbook.md) — The 5 Core Questions, 3-Step Habit Testing (Identify/Codify/Modify).
+* [**Reference 08: EAST & TTV Framework**](skills/hooked/references/08_east_and_ttv_framework.md) — BIT EAST criteria, Time-to-Value stopwatch, Overjustification defense, RAT matrices.
 
 ---
 
