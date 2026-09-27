@@ -128,4 +128,64 @@ class PatchGenerator:
 """
             )
 
+        # Case 4: Excessive Time-to-Value Friction (HOOK-ACT-04)
+        if finding.control_id == "HOOK-ACT-04":
+            target = finding.code_patch_target or "src/components/QuickStartWizard.tsx"
+            return RemediationPatch(
+                title="Endowed Progress Wizard: Pre-fill defaults & compress TTV under 15 seconds",
+                target_file=target,
+                phase="action",
+                rationale="Leverages the Endowed Progress Effect (Nunes & Dreze) by giving users head-start progress (Step 2 of 3) and 1-click template selection to compress Time-to-Value.",
+                diff_content=f"""--- a/{target}
++++ b/{target}
+@@ -1,15 +1,24 @@
+-export function SetupWizard() {{
+-  // Slow multi-page questionnaire
+-  return <ComplexSurvey onComplete={{save}} />;
++export function QuickStartWizard({{ onAhaMoment }}: {{ onAhaMoment: () => void }}) {{
++  // Endowed Progress: User starts at 66% completed with smart defaults pre-populated
++  return (
++    <div className="quickstart-container">
++      <div className="progress-banner" aria-label="Step 2 of 3 (66% completed)">
++        <span>Step 2 of 3: Fast-track template chosen</span>
++        <div className="progress-bar-fill" style={{{{ width: '66%' }}}} />
++      </div>
++      <h3>Explore with sample data ready</h3>
++      <button 
++        className="btn-primary-instant"
++        onClick={{() => onAhaMoment()}}
++      >
++        Launch Instant Sandbox (1-Click) &rarr;
++      </button>
++    </div>
++  );
+ }}
+"""
+            )
+
+        # Case 5: Overjustification Decay Risk (HOOK-REW-03)
+        if finding.control_id == "HOOK-REW-03":
+            target = finding.code_patch_target or "src/rewards/achievementHandler.ts"
+            return RemediationPatch(
+                title="Intrinsic Mastery Upgrade: Transform extrinsic points into milestone mastery",
+                target_file=target,
+                phase="reward",
+                rationale="Protects against the Overjustification Effect by anchoring rewards to genuine competence feedback (Self) and peer appreciation (Tribe) rather than ephemeral point tickers.",
+                diff_content=f"""--- a/{target}
++++ b/{target}
+@@ -5,7 +5,13 @@ export function awardActivity(userId: string) {{
+-  // Pure extrinsic point increment: high satiation & churn risk
+-  pointsEngine.increment(userId, 10);
++  // Hook Model Mastery Loop: Pair achievement with intrinsic competence feedback
++  const masteryTier = calculateSkillMilestone(userId);
++  notifications.send({{
++    userId,
++    title: `Mastery Unlocked: Level ${{masteryTier.name}}`,
++    body: `You automated your first workflow. Your team has already saved 2.4 hours.`,
++    shareableArtifactUrl: `/certificates/${{masteryTier.id}}`
++  }});
+ }}
+"""
+            )
+
         return None

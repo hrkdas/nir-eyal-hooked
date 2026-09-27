@@ -19,17 +19,24 @@ class AuditReportBuilder:
     Coordinates the full audit pipeline and compiles the master AuditBundle.
     """
 
-    def __init__(self, graph: HookGraph):
+    def __init__(self, graph: HookGraph, empirical_telemetry: Optional[Dict[str, float]] = None):
         self.graph = graph
+        self.empirical_telemetry = empirical_telemetry
 
-    def build(self, run_simulation: bool = True, run_interviews: bool = True) -> AuditBundle:
+    def build(
+        self,
+        run_simulation: bool = True,
+        run_interviews: bool = True,
+        empirical_telemetry: Optional[Dict[str, float]] = None,
+    ) -> AuditBundle:
         """Executes scoring and optional lifecycle simulation to build complete bundle."""
+        telemetry = empirical_telemetry or self.empirical_telemetry
         scorer = HabitScorer(self.graph)
         bundle = scorer.score()
 
         if run_simulation:
             cohorts = get_default_cohorts()
-            sim = LifecycleSimulator(self.graph, cohorts=cohorts)
+            sim = LifecycleSimulator(self.graph, cohorts=cohorts, empirical_telemetry=telemetry)
             sim_result = sim.run()
             bundle.simulation_results = sim_result.to_dict()
 

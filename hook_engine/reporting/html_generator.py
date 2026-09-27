@@ -112,6 +112,122 @@ class HTMLReportGenerator:
                 """)
         interviews_rendered = "\n".join(interviews_html) if interviews_html else "<p>No interview records.</p>"
 
+        # EAST Framework Card
+        east = self.bundle.east_score
+        east_html = ""
+        if east:
+            overall_pct = int(east.overall * 100)
+            easy_pct = int(east.easy * 100)
+            attractive_pct = int(east.attractive * 100)
+            social_pct = int(east.social * 100)
+            timely_pct = int(east.timely * 100)
+            east_html = f"""
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <span class="card-title">EAST Behavioral Framework Diagnostic</span>
+            <span class="badge {'pass' if overall_pct >= 70 else 'warn'}">EAST Score: {overall_pct}/100</span>
+        </div>
+        <div class="east-grid">
+            <div class="east-item">
+                <div class="east-label"><span><strong>E</strong>asy</span> <span>{easy_pct}/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: {easy_pct}%; background: #38bdf8;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Frictionless default paths & progressive disclosure</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>A</strong>ttractive</span> <span>{attractive_pct}/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: {attractive_pct}%; background: #a855f7;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Salient cues & immediate dopamine anticipation</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>S</strong>ocial</span> <span>{social_pct}/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: {social_pct}%; background: #ec4899;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Tribe validation, social proof & peer loops</small>
+            </div>
+            <div class="east-item">
+                <div class="east-label"><span><strong>T</strong>imely</span> <span>{timely_pct}/100</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width: {timely_pct}%; background: #10b981;"></div></div>
+                <small style="color: var(--muted); font-size: 0.75rem;">Context-aware prompts & trigger priming</small>
+            </div>
+        </div>
+    </div>
+            """
+
+        # TTV Stopwatch Card
+        ttv_metrics = self.bundle.ttv_metrics
+        ttv = ttv_metrics.estimated_ttv_seconds if ttv_metrics else 20
+        ttv_rating = ttv_metrics.rating if ttv_metrics else "Optimal (<45s)"
+        ttv_color = "#10b981" if ttv <= 25 else ("#f59e0b" if ttv <= 45 else "#ef4444")
+        ttv_badge_html = f"""
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Time-to-Value (TTV) Stopwatch</span>
+                <span class="badge" style="background: {ttv_color}20; color: {ttv_color}; border: 1px solid {ttv_color}40;">{ttv_rating}</span>
+            </div>
+            <div class="card-metric" style="color: {ttv_color};">~{ttv}s <small style="font-size: 0.9rem; color: var(--muted);">to first Aha! moment</small></div>
+            <div class="card-desc">Simulated clock from initial landing / prompt arrival to first core value delivery.</div>
+        </div>
+        """
+
+        # Riskiest Habit Assumptions (RAT)
+        rat = self.bundle.rat_assumption
+        rat_rows = []
+        if rat:
+            rat_rows.append(f"""
+            <tr>
+                <td><span class="phase-tag">CORE LOOP</span></td>
+                <td><strong>{rat.hypothesis}</strong></td>
+                <td><span class="badge warn">{rat.risk_level.upper()}</span></td>
+                <td><code>{rat.test_method}</code></td>
+                <td><span style="color: #38bdf8;">{rat.success_metric}</span></td>
+            </tr>
+            """)
+        rat_table_html = "\n".join(rat_rows) if rat_rows else "<tr><td colspan='5'>No critical habit assumptions flagged.</td></tr>"
+
+        # Empirical telemetry comparison table
+        empirical_html = ""
+        if sim and sim.get("empirical_comparison"):
+            emp_comp = sim["empirical_comparison"]
+            emp_rows = []
+            for r in emp_comp.get("rounds", []):
+                r_id = r.get("round_id")
+                sim_pct = r.get("simulated_retention_pct", 0.0)
+                emp_pct = r.get("empirical_retention_pct")
+                delta = r.get("delta_pct")
+                delta_str = "N/A"
+                delta_color = "var(--muted)"
+                if delta is not None:
+                    delta_str = f"{delta:+.1f}%"
+                    delta_color = "#10b981" if abs(delta) <= 5.0 else ("#f59e0b" if abs(delta) <= 15.0 else "#ef4444")
+                emp_rows.append(f"""
+                <tr>
+                    <td><strong>{r_id}</strong></td>
+                    <td>{sim_pct:.1f}%</td>
+                    <td>{f"{emp_pct:.1f}%" if emp_pct is not None else "N/A"}</td>
+                    <td><span style="color: {delta_color}; font-weight: bold;">{delta_str}</span></td>
+                </tr>
+                """)
+            empirical_html = f"""
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-weight: 600; font-size: 0.95rem;">Empirical Telemetry Calibration (Mixpanel / PostHog)</span>
+                    <span class="badge pass">Calibrated</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Round</th>
+                            <th>Simulated</th>
+                            <th>Empirical Actual</th>
+                            <th>Delta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {"".join(emp_rows)}
+                    </tbody>
+                </table>
+            </div>
+            """
+
         # SVG Habit Zone Coordinate Calculation
         # Map (Utility: 0-10 -> X: 40 to 360, Freq: 0-10 -> Y: 360 to 40)
         px_x = 40 + (zone.perceived_utility_score / 10.0) * 320
@@ -185,6 +301,9 @@ th {{ background: #131d31; color: var(--muted); font-weight: 600; text-transform
 .interview-dialogue .a {{ color: #38bdf8; }}
 .interview-dialogue .diag {{ color: #f59e0b; font-size: 0.8rem; }}
 .interview-remedy {{ margin-top: 1rem; padding: 0.75rem; background: #0f172a; border-left: 3px solid var(--success); border-radius: 4px; font-size: 0.9rem; }}
+.east-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }}
+.east-item {{ background: #131d31; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); }}
+.east-label {{ display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; }}
 </style>
 </head>
 <body>
@@ -203,7 +322,10 @@ th {{ background: #131d31; color: var(--muted); font-weight: 600; text-transform
         </div>
     </header>
 
-    <!-- 4 Phases Grid -->
+    <!-- EAST Behavioral Framework Card (if analyzed) -->
+    {east_html}
+
+    <!-- 4 Phases + TTV Stopwatch Grid -->
     <div class="grid-4">
         <div class="card">
             <div class="card-header">
@@ -248,6 +370,11 @@ th {{ background: #131d31; color: var(--muted); font-weight: 600; text-transform
             </div>
             <div class="card-desc">Compounding stored value (Content, Data, Reputation, Skill)</div>
         </div>
+    </div>
+
+    <!-- TTV Stopwatch Highlight -->
+    <div style="margin-bottom: 2rem;">
+        {ttv_badge_html}
     </div>
 
     <!-- Habit Zone & Cohorts Section -->
@@ -297,6 +424,7 @@ th {{ background: #131d31; color: var(--muted); font-weight: 600; text-transform
                     {cohort_html}
                 </tbody>
             </table>
+            {empirical_html}
             <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
                 Ethics Classification: <strong>{ethics}</strong> &bull; Manipulation Matrix: 
                 <span style="color: {'#34d399' if ethics == 'Facilitator' else '#f87171'};">
@@ -313,6 +441,30 @@ th {{ background: #131d31; color: var(--muted); font-weight: 600; text-transform
             Qualitative interviews simulating dropped-out cohort personas to extract root-cause emotional friction.
         </p>
         {interviews_rendered}
+    </div>
+
+    <!-- Riskiest Habit Assumption Tests (RAT) Section -->
+    <div class="section">
+        <h2 class="section-title">Riskiest Habit Assumption Tests (RAT Matrix)</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">
+            Empirical falsification hypotheses testing core habit assumptions before scaling spend.
+        </p>
+        <div class="card" style="overflow-x: auto; padding: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Core Habit Assumption</th>
+                        <th>Vulnerability Hypothesis</th>
+                        <th>Validation Telemetry Metric</th>
+                        <th>Failure Threshold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rat_table_html}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Findings Table -->

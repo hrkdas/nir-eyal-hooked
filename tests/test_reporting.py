@@ -85,6 +85,61 @@ class TestReportingEngine(unittest.TestCase):
         self.assertIn("--- a/", form_patch.diff_content)
         self.assertIn("+++ b/", form_patch.diff_content)
 
+    def test_html_generator_renders_east_ttv_and_rat(self):
+        builder = AuditReportBuilder(self.graph)
+        empirical_telemetry = {"Day 0": 100.0, "Day 1": 35.0, "Day 3": 18.0, "Day 7": 10.0, "Day 30": 5.0}
+        bundle = builder.build(run_simulation=True, run_interviews=True, empirical_telemetry=empirical_telemetry)
+
+        generator = HTMLReportGenerator(bundle)
+        html_out = Path(self.test_dir) / "enriched_report.html"
+        generated_path = generator.generate(str(html_out))
+
+        self.assertTrue(Path(generated_path).exists())
+        content = Path(generated_path).read_text(encoding="utf-8")
+        self.assertIn("EAST Behavioral Framework Diagnostic", content)
+        self.assertIn("Time-to-Value (TTV) Stopwatch", content)
+        self.assertIn("Riskiest Habit Assumption Tests (RAT Matrix)", content)
+        self.assertIn("Empirical Telemetry Calibration", content)
+
+    def test_patch_generator_endowed_progress_and_mastery(self):
+        finding_ttv = Finding(
+            control_id="HOOK-ACT-04",
+            phase="action",
+            title="Time-to-Value Lag",
+            verdict=FindingVerdict.FAIL,
+            severity=FindingSeverity.HIGH,
+            observation="TTV exceeds 45s",
+            evidence="TTV stopwatch measured 65s",
+            recommendation="Pre-fill defaults",
+            code_patch_target="src/components/QuickStartWizard.tsx",
+        )
+        finding_gamification = Finding(
+            control_id="HOOK-REW-03",
+            phase="reward",
+            title="Overjustification Risk",
+            verdict=FindingVerdict.WARN,
+            severity=FindingSeverity.MEDIUM,
+            observation="Points only",
+            evidence="Streak points without social loop",
+            recommendation="Upgrade to intrinsic mastery",
+            code_patch_target="src/rewards/achievementHandler.ts",
+        )
+        builder = AuditReportBuilder(self.graph)
+        bundle = builder.build(run_simulation=False)
+        bundle.findings.extend([finding_ttv, finding_gamification])
+
+        patch_gen = PatchGenerator(bundle)
+        patches = patch_gen.generate_patches()
+
+        wizard_patch = next((p for p in patches if "Endowed Progress Wizard" in p.title), None)
+        self.assertIsNotNone(wizard_patch)
+        self.assertIn("QuickStartWizard", wizard_patch.diff_content)
+
+        mastery_patch = next((p for p in patches if "Intrinsic Mastery Upgrade" in p.title), None)
+        self.assertIsNotNone(mastery_patch)
+        self.assertIn("masteryTier", mastery_patch.diff_content)
+
 
 if __name__ == "__main__":
     unittest.main()
+
