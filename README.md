@@ -1,128 +1,205 @@
-# Hooked: How to Build Habit-Forming Products
-### *By Nir Eyal (with Ryan Hoover)*
+# HookEngine: Nir Eyal Hook Model Behavioral Audit & Simulation Engine
 
-> *"The products and services we use habit-formingly alter our everyday behaviors, just as their designers intended."*
+<div align="center">
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-agentskills.io-purple.svg)](https://agentskills.io)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-orange.svg)](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
+[![Antigravity](https://img.shields.io/badge/Antigravity-Skill%20Ready-green.svg)](https://antigravity.google)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**An autonomous behavioral audit, cohort simulation, and UX remediation engine grounded in Nir Eyal's *Hooked*.**  
+*Built for founders, product engineers, and AI coding agents (Claude, Codex, Cursor, Antigravity).*
+
+</div>
 
 ---
 
-## Executive Overview & Core Ideology
+## ⚡ Overview
 
-Why do some products capture widespread attention and become daily necessities while others flop? Why do 79% of smartphone owners check their devices within 15 minutes of waking up, and why do billions reflexively open Instagram, Twitter, YouTube, or Slack without any conscious decision to do so?
+Why do 79% of smartphone owners check their phones within 15 minutes of waking up? Why do products like Slack, Instagram, Google, and Duolingo become reflexive subconscious daily habits, while 95% of new apps churn into the graveyard within 30 days?
 
-In ***Hooked: How to Build Habit-Forming Products***, behavioral engineer Nir Eyal reveals the hidden architecture behind the world’s most successful habit-forming technologies. Rather than relying on expensive, continuous advertising, market-leading companies design user experiences that anchor into **internal psychological triggers** (boredom, loneliness, insecurity, uncertainty, FOMO) and drive automatic, subconscious loops of engagement.
+**HookEngine** is an open-source behavioral intelligence platform and AI agent skill. It scans your codebase, PRD, or user flows to evaluate your product against **Nir Eyal's 4-Phase Hook Model** (*Trigger, Action, Variable Reward, Investment*). 
 
-This repository contains an **end-to-end distillation and ideological analysis** of *Hooked*. It examines the neurological, behavioral, economic, and moral foundations of behavioral engineering, providing modern product builders, researchers, and system designers with a complete reference guide.
+Unlike academic prompt collections or cloud-heavy multi-container simulators, HookEngine is **zero-dependency, standard-library first, and 100% offline-capable**. It provides:
+
+1. **Deterministic AST Codebase Scanner**: Analyzes form fields, click steps, push/email hooks, and DB schemas.
+2. **Behavioral Habit Math**: Computes the **Habit Zone Coordinate** ($x = \text{Utility}, y = \text{Frequency}$), **Fogg Simplicity Index** ($B = MAT$), and **Reward Entropy** (Finite vs. Infinite variability).
+3. **Multi-Agent 30-Day Cohort Simulator**: Simulates 5 distinct user psychographics navigating your product over 30 days.
+4. **Synthetic "5 Whys" Churn Interrogations**: Autonomous qualitative interviews with churned personas diagnosing why they left.
+5. **Interactive HTML Dashboard & Git Diffs**: Self-contained visual reports with habit radar graphs, retention waterfalls, and actionable copy/code patches.
 
 ---
 
-## The Hook Model: The 4-Step Behavioral Engine
-
-At the core of the book is **The Hook Model**—an iterative four-phase cycle that, when navigated repeatedly, wires a product into a user's automatic neural routines (the basal ganglia) until the behavior becomes self-sustaining without external prompts.
+## 🔄 The 5-Phase Behavioral Engine
 
 ```mermaid
 flowchart LR
-    subgraph HookModel["The Hook Cycle"]
-        direction TB
-        T["1. TRIGGER<br/><b>External</b> (Call to Action)<br/><b>Internal</b> (Emotional Itch)"]
-        A["2. ACTION<br/><b>Behavior</b> in anticipation of reward<br/><i>(B = M · A · T)</i>"]
-        R["3. VARIABLE REWARD<br/><b>Nucleus Accumbens</b> stimulation<br/><i>Tribe • Hunt • Self</i>"]
-        I["4. INVESTMENT<br/><b>Stored Value</b> & Commitment<br/><i>Loads the Next Trigger</i>"]
+    subgraph S1["1. Scanner"]
+        A1["Codebase AST / PRD<br/>• Form inputs (Fogg friction)<br/>• Push/Email triggers<br/>• DB Stored Value"]
     end
 
-    T --> A
-    A --> R
-    R --> I
-    I --> T
+    subgraph S2["2. Habit Scorer"]
+        A2["Behavioral Math<br/>• Habit Zone (Freq × Utility)<br/>• Fogg Sieve (B=MAT)<br/>• Manipulation Matrix"]
+    end
 
-    style HookModel fill:#f9fafb,stroke:#111827,stroke-width:2px
-    style T fill:#eff6ff,stroke:#2563eb,stroke-width:2px
-    style A fill:#ecfdf5,stroke:#059669,stroke-width:2px
-    style R fill:#fffbeb,stroke:#d97706,stroke-width:2px
-    style I fill:#fdf2f8,stroke:#db2777,stroke-width:2px
+    subgraph S3["3. Cohort Simulator"]
+        A3["30-Day Lifecycle<br/>• Casual Novice<br/>• Anxious Pro<br/>• Cynic Skeptic<br/>• Power Devotee"]
+    end
+
+    subgraph S4["4. '5 Whys' Interviews"]
+        A4["Qualitative Audit<br/>• Interrogate churned personas<br/>• Trace root emotional itch"]
+    end
+
+    subgraph S5["5. Remediation"]
+        A5["Actionable Output<br/>• JSON Audit Bundle<br/>• Interactive HTML Report<br/>• Git-style Code & Copy Diffs"]
+    end
+
+    S1 --> S2 --> S3 --> S4 --> S5
 ```
 
-![The Hook Model](assets/images/00001.jpeg)
-*Figure 1: The Hook Model — Trigger, Action, Variable Reward, and Investment.*
+---
+
+## 🚀 Quickstart (CLI)
+
+### 1. Requirements
+* Python $\ge 3.10$ (No external packages required; uses Python standard library `sqlite3`, `dataclasses`, `json`, `pathlib`, `re`).
+
+### 2. Run Full Behavioral Audit
+Audit an entire project, generate an interactive HTML dashboard, and print remediation diffs:
+
+```bash
+# Audit a codebase or documentation folder
+python3 -m hook_engine audit ./my-app --html report.html --json bundle.json --diff
+```
+
+### 3. Subcommands
+
+```bash
+# 1. Scan codebase for Hook components (Triggers, Actions, Rewards, Investments)
+python3 -m hook_engine scan ./my-app
+
+# 2. Run 30-day multi-cohort retention simulation
+python3 -m hook_engine simulate ./my-app --users 100
+
+# 3. Generate actionable code and copy remediation diffs
+python3 -m hook_engine diff ./my-app
+```
 
 ---
 
-## The Core Tenets of the *Hooked* Ideology
+## 🤖 Using as a Claude / Cursor / Antigravity / Codex Skill
 
-### 1. First-To-Mind Wins (The Mind Monopoly)
-In the digital economy, cognitive economy rules. When a user experiences a problem or emotional discomfort, the product that surfaces first in their subconscious mind captures the market. Searching equals **Google**. Social boredom equals **Instagram** or **TikTok**. Professional networking equals **LinkedIn**. Habits create defensible **"Mind Monopolies"** that outlast feature competition.
+HookEngine complies with the open [Agent Skills specification](https://agentskills.io) (`SKILL.md`). You can use it as a native AI skill in your favorite agent harness:
 
-### 2. From Vitamin to Painkiller
-Investors often debate whether a startup is a "vitamin" (nice to have) or a "painkiller" (relieves acute discomfort). Habit-forming technologies pull off a unique psychological sleight of hand: **they begin as vitamins and evolve into painkillers**. A new product starts as a pleasant novelty, but as the Hook cycle repeats, the absence of the product creates a genuine psychological itch—a micro-pang of anxiety, boredom, or uncertainty—that only the product can alleviate.
+### Option A: Antigravity IDE
+Symlink or copy the `skills/hooked/` directory into your active skills path:
+```bash
+ln -s "$(pwd)/skills/hooked" ~/.gemini/config/skills/hooked
+```
+Now in your Antigravity chat, simply type:
+> `/hooked audit this project and give me habit-forming recommendations`
 
-### 3. Simplicity Trumps Motivation ($B = MAT$)
-Drawing on Dr. B.J. Fogg’s Behavior Model, behavior is a function of Motivation, Ability, and a Trigger. While most companies waste millions attempting to artificially hype user motivation, elite product designers relentlessly eliminate cognitive, physical, temporal, and financial friction to elevate **Ability**. Make the intended action easier than thinking.
+### Option B: Claude Code CLI
+Add to your Claude Code skills directory:
+```bash
+ln -s "$(pwd)/skills/hooked" ~/.claude/skills/hooked
+```
+Trigger anytime with:
+> `Review our onboarding flow using Nir Eyal's hook model`
 
-### 4. Dopamine Anticipation & Variable Reinforcement
-Drawing on B.F. Skinner’s operant conditioning and Wolfram Schultz’s neurobiology of dopamine, the human brain’s pleasure center (nucleus accumbens) is activated not by the reward itself, but by the **unpredictable anticipation** of the reward. Introducing variability across **Social validation (Tribe)**, **Information/Resource acquisition (Hunt)**, and **Mastery/Competence (Self)** transforms routine actions into compelling compulsions.
-
-### 5. Stored Value & The IKEA Effect
-Unlike physical goods that depreciate with usage, habit-forming software **appreciates in value** the more users interact with it. By asking users for small investments of time, data, effort, social capital, or skill, users irrationally overvalue the service (the IKEA effect), raise their switching costs, and program future triggers that draw them back into the loop.
-
-### 6. The Moral Imperative of Behavioral Design
-Building habit-forming products is a form of behavioral engineering. Because designers can alter subconscious behavior at scale, ethical discernment is mandatory. Nir Eyal provides the **Manipulation Matrix** (Facilitator, Peddler, Entertainer, Dealer) to distinguish between products that genuinely enhance human flourishing versus predatory traps that induce destructive addiction.
+### Option C: Cursor / Windsurf / Codex
+Point your custom rule or agent configuration to `skills/hooked/SKILL.md`.
 
 ---
 
-## Repository Architecture & Reading Guide
+## 📊 The 4-Phase Hook Model at a Glance
 
-This repository is structured into two core sections: **Ideological Frameworks** (the macro-theory, psychology, economics, and builder toolkits) and **End-to-End Chapter Analyses** (the chapter-by-chapter distillation of the source material).
+| Phase | Primary Function | Core Driver | Common Failure Modes |
+| :--- | :--- | :--- | :--- |
+| **1. Trigger** | Tells the user to act; cues behavior | External: Push, email, relationship.<br/>Internal: Negative emotional discomfort (boredom, anxiety, FOMO). | Relying solely on paid ads; spamming users with generic marketing notifications. |
+| **2. Action** | Minimal behavior done in anticipation of reward | Dr. B.J. Fogg Model: $B = MAT$. High Ability (near zero cognitive/physical friction). | High-friction registration walls; mandatory 8-field forms before value realization. |
+| **3. Variable Reward** | Satiates user desire while leaving them wanting more | Dopamine surge in nucleus accumbens: **Tribe** (social), **Hunt** (resources), **Self** (mastery). | Finite rewards (static badges/points) leading to rapid dopamine satiation. |
+| **4. Investment** | User puts work into product to store future value | Escalation of commitment, IKEA effect: **Content**, **Data**, **Followers**, **Reputation**, **Skill**. | Zero stored value (leaky bucket); user work does not prime future external triggers. |
+
+---
+
+## ⚖️ The Manipulation Matrix
+
+Digital product designers hold profound power over human attention. HookEngine automatically audits for dark patterns and classifies products into Nir Eyal's **Manipulation Matrix**:
+
+```
+                  Does it materially improve the user's life?
+                                  YES                     NO
+                         +---------------------+---------------------+
+                     YES |   THE FACILITATOR   |   THE ENTERTAINER   |
+Would I use the          | (Highest Integrity) | (Ephemeral Delight) |
+product myself?          +---------------------+---------------------+
+                      NO |     THE PEDDLER     |     THE DEALER      |
+                         |  (Self-Deception)   | (Exploitation/Harm) |
+                         +---------------------+---------------------+
+```
+
+* **The Facilitator**: The maker uses the product and it genuinely enhances user flourishing.
+* **The Dealer**: Compulsive habit mechanics used without personal skin in the game, inflicting material harm (gambling, predatory sludge). HookEngine flags Dealer patterns as critical ethics violations.
+
+---
+
+## 📂 Repository Layout
 
 ```
 .
-├── README.md                                 # Master overview and ideology index
-├── ideology/
-│   ├── 01-the-hook-philosophy.md             # The Economics & Moats of Habit Formation
-│   ├── 02-behavioral-psychology.md           # Cognitive Neuroscience, Heuristics & Biases
-│   ├── 03-the-hook-mechanics.md              # Deep Dive into the 4 Phases
-│   ├── 04-the-manipulation-matrix.md         # Ethics, Addiction vs. Habit & Responsibility
-│   └── 05-the-builder-playbook.md            # Actionable Habit Testing & Diagnostic Playbook
-├── chapters/
-│   ├── 00-introduction.md                    # Habits as Neural Shortcuts & First-to-Mind
-│   ├── 01-the-habit-zone.md                  # Ch 1: LTV, Pricing Power, 9x Rule & The Habit Zone
-│   ├── 02-trigger.md                         # Ch 2: External vs. Internal Triggers & The 5 Whys
-│   ├── 03-action.md                          # Ch 3: Fogg Model (B=MAT), Simplicity & Heuristics
-│   ├── 04-variable-reward.md                 # Ch 4: Dopamine, Tribe/Hunt/Self & Autonomy
-│   ├── 05-investment.md                      # Ch 5: IKEA Effect, 5 Types of Stored Value & Triggers
-│   ├── 06-morality-of-manipulation.md        # Ch 6: The Manipulation Matrix & Responsible Design
-│   ├── 07-case-study-the-bible-app.md        # Ch 7: Deep Case Study: YouVersion Bible App
-│   └── 08-habit-testing-and-opportunities.md # Ch 8: Identify-Codify-Modify & Nascent Behaviors
-└── assets/
-    └── images/                               # Extracted figures and visual artifacts (00001 - 00042)
+├── ARCHITECTURE_PLAN.md               # Master system engineering blueprint
+├── README.md                          # Public documentation & skill guide
+├── hook_engine/                       # Core Python engine (Zero dependencies)
+│   ├── __init__.py
+│   ├── cli.py                         # Unified CLI runner
+│   ├── core/                          # Models, AST Scanner, and Behavioral Scorer
+│   │   ├── models.py
+│   │   ├── scanner.py
+│   │   └── scorer.py
+│   ├── simulation/                    # Multi-agent cohorts and 5 Whys engine
+│   │   ├── cohorts.py
+│   │   ├── lifecycle.py
+│   │   └── interviewer.py
+│   └── reporting/                     # JSON bundles, HTML dashboard, unified diffs
+│       ├── builder.py
+│       ├── html_generator.py
+│       └── patch_generator.py
+├── skills/
+│   └── hooked/                        # agentskills.io standard skill package
+│       ├── SKILL.md                   # Skill entrypoint & agent contract
+│       ├── references/                # Token-lean modular knowledge sheets (01-07)
+│       └── templates/                 # JSON schema & sample bundles
+├── tests/                             # Full test suite (Scanner, Scorer, Simulation, E2E)
+├── chapters/                          # Source book chapter-by-chapter distillation
+└── ideology/                          # Core behavioral psychology & builder playbook
 ```
 
 ---
 
-## Quick Navigation Index
+## 🧪 Testing & Verification
 
-| Section | Topic | Core Concept |
-| :--- | :--- | :--- |
-| [**Ideology 01**](ideology/01-the-hook-philosophy.md) | **The Hook Philosophy** | CLTV, Pricing Power, Virality, 9x Effect, Mind Monopoly |
-| [**Ideology 02**](ideology/02-behavioral-psychology.md) | **Behavioral Psychology** | System 1 vs 2, $B=MAT$, Dopamine, Nucleus Accumbens, Heuristics |
-| [**Ideology 03**](ideology/03-the-hook-mechanics.md) | **The 4 Hook Phases** | Triggers (Internal/External), Action, Variable Rewards, Stored Value |
-| [**Ideology 04**](ideology/04-the-manipulation-matrix.md) | **Ethics & Manipulation** | The Manipulation Matrix: Facilitator vs Dealer, Habit vs Addiction |
-| [**Ideology 05**](ideology/05-the-builder-playbook.md) | **The Builder's Playbook** | 5 Core Questions, Habit Testing (Identify/Codify/Modify) |
-| [**Chapter 00**](chapters/00-introduction.md) | **Introduction** | Brain automaticity, basal ganglia, first-to-mind wins |
-| [**Chapter 01**](chapters/01-the-habit-zone.md) | **The Habit Zone** | Frequency vs. Perceived Utility, Vitamins vs. Painkillers |
-| [**Chapter 02**](chapters/02-trigger.md) | **Trigger** | Paid, Earned, Relationship, Owned & Internal emotional triggers |
-| [**Chapter 03**](chapters/03-action.md) | **Action** | Fogg Behavior Model, 6 Simplicity Levers, Scarcity, Framing |
-| [**Chapter 04**](chapters/04-variable-reward.md) | **Variable Reward** | Rewards of the Tribe, Hunt, Self; Finite vs. Infinite variability |
-| [**Chapter 05**](chapters/05-investment.md) | **Investment** | IKEA effect, Stored Value (Content, Data, Followers, Rep, Skill) |
-| [**Chapter 06**](chapters/06-morality-of-manipulation.md) | **The Morality of Manipulation** | Quadrant breakdown of creator intent and user impact |
-| [**Chapter 07**](chapters/07-case-study-the-bible-app.md) | **Case Study: The Bible App** | How YouVersion hooked 100M+ users with spiritual routines |
-| [**Chapter 08**](chapters/08-habit-testing-and-opportunities.md) | **Habit Testing & Opportunities** | Habit Path codification, nascent behaviors, interface shifts |
+Run the entire test suite (including end-to-end integration tests):
+
+```bash
+python3 -m unittest discover tests
+```
 
 ---
 
-## Key Synthesis Table: The Four Phases at a Glance
+## 📖 Deep Reference & Ideology Library
 
-| Phase | Primary Function | Psychological Driver | Product Implementation |
-| :--- | :--- | :--- | :--- |
-| **1. Trigger** | Tells the user to act; sparks the behavior | External: Cues in environment.<br/>Internal: Negative emotional state (itch). | Push notifications, app icons, emails transitioning into reflexive responses to boredom, FOMO, or doubt. |
-| **2. Action** | The minimum physical/mental behavior done for reward | BJ Fogg Model: $B = MAT$. High motivation, high ability (near zero friction). | 1-click checkout, single-tap camera, infinite scroll, SSO (Log in with Google/Facebook). |
-| **3. Variable Reward** | Satiates user's desire while leaving them wanting more | Dopamine surge in nucleus accumbens due to unpredictable outcomes. | **Tribe**: Likes, comments, social standing.<br/>**Hunt**: Feed updates, deals, news.<br/>**Self**: Clearing inbox, leveling up. |
-| **4. Investment** | User puts work into the product to store future value | Escalation of commitment, IKEA effect, cognitive dissonance avoidance. | Building playlists, logging personal data, curating follower graphs, mastering workflows, loading next trigger. |
+This repository contains an exhaustive distillation of Nir Eyal's source writings:
+
+* [**Ideology 01: The Hook Philosophy**](ideology/01-the-hook-philosophy.md) — CLTV, Pricing Power, The 9x Rule, Mind Monopolies.
+* [**Ideology 02: Behavioral Psychology**](ideology/02-behavioral-psychology.md) — System 1 vs 2, BJ Fogg Model, Dopamine neurobiology.
+* [**Ideology 03: The Hook Mechanics**](ideology/03-the-hook-mechanics.md) — The 4 phases, External vs Internal triggers, Stored Value.
+* [**Ideology 04: The Manipulation Matrix**](ideology/04-the-manipulation-matrix.md) — Ethics, Habit vs Addiction, The 2x2 Matrix.
+* [**Ideology 05: The Builder's Playbook**](ideology/05-the-builder-playbook.md) — The 5 Core Questions, 3-Step Habit Testing (Identify/Codify/Modify).
+
+---
+
+## 📄 License
+
+MIT &copy; 2026 Nir Eyal Hooked Open Source Community.
