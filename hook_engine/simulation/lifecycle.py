@@ -41,6 +41,7 @@ class SimulationRunResult:
     overall_retention_rate: float
     cohort_summaries: Dict[str, Dict[str, Any]]
     round_timeline: List[RoundResult] = field(default_factory=list)
+    empirical_comparison: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -49,6 +50,7 @@ class SimulationRunResult:
             "overall_retention_rate": round(self.overall_retention_rate, 3),
             "cohort_summaries": self.cohort_summaries,
             "round_timeline": [r.to_dict() for r in self.round_timeline],
+            "empirical_comparison": self.empirical_comparison,
         }
 
 
@@ -59,9 +61,15 @@ class LifecycleSimulator:
 
     ROUNDS = ["Day 0", "Day 1", "Day 3", "Day 7", "Day 30"]
 
-    def __init__(self, graph: HookGraph, cohorts: Optional[List[UserCohort]] = None):
+    def __init__(
+        self,
+        graph: HookGraph,
+        cohorts: Optional[List[UserCohort]] = None,
+        empirical_telemetry: Optional[Dict[str, float]] = None,
+    ):
         self.graph = graph
         self.cohorts = cohorts or get_default_cohorts()
+        self.empirical_telemetry = empirical_telemetry
 
     def run(self) -> SimulationRunResult:
         timeline: List[RoundResult] = []
@@ -128,12 +136,37 @@ class LifecycleSimulator:
                 "history": cohort_history,
             }
 
+        empirical_comparison = None
+        if self.empirical_telemetry:
+            normalized_empirical = {}
+            for k, v in self.empirical_telemetry.items():
+                k_norm = k.replace("_", " ").title()
+                normalized_empirical[k_norm] = float(v)
+
+            rounds_comp = []
+            for r_id in self.ROUNDS:
+                total_in_round = sum(c["history"].get(r_id, 0) for c in cohort_summaries.values())
+                sim_pct = round((total_in_round / total_start) * 100.0, 1) if total_start > 0 else 0.0
+                actual_pct = normalized_empirical.get(r_id, None)
+                delta = round(actual_pct - sim_pct, 1) if actual_pct is not None else None
+                rounds_comp.append({
+                    "round_id": r_id,
+                    "simulated_retention_pct": sim_pct,
+                    "empirical_retention_pct": actual_pct,
+                    "delta_pct": delta,
+                })
+            empirical_comparison = {
+                "rounds": rounds_comp,
+                "summary": "Actual empirical retention tracks baseline expectations"
+            }
+
         return SimulationRunResult(
             total_initial_users=total_start,
             total_day30_retained=total_retained_day30,
             overall_retention_rate=(total_retained_day30 / total_start) if total_start > 0 else 0.0,
             cohort_summaries=cohort_summaries,
             round_timeline=timeline,
+            empirical_comparison=empirical_comparison,
         )
 
     def _compute_dropoff_probability(

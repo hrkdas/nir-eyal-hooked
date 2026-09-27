@@ -64,6 +64,25 @@ class TestSimulationEngine(unittest.TestCase):
         self.assertIn("ROOT CAUSE", transcript.steps[4].behavioral_diagnosis)
         self.assertTrue(len(transcript.actionable_remediation) > 10)
 
+    def test_lifecycle_with_empirical_telemetry(self):
+        cohorts = get_default_cohorts(population_per_cohort=20)
+        telemetry = {
+            "Day 0": 100.0,
+            "Day 1": 40.0,
+            "Day 3": 20.0,
+            "Day 7": 12.0,
+            "Day 30": 6.0
+        }
+        sim = LifecycleSimulator(self.graph, cohorts=cohorts, empirical_telemetry=telemetry)
+        res = sim.run()
+
+        self.assertIsNotNone(res.empirical_comparison)
+        self.assertEqual(len(res.empirical_comparison["rounds"]), 5)
+        d1_comp = next(r for r in res.empirical_comparison["rounds"] if r["round_id"] == "Day 1")
+        self.assertEqual(d1_comp["empirical_retention_pct"], 40.0)
+        self.assertIsNotNone(d1_comp["delta_pct"])
+
 
 if __name__ == "__main__":
     unittest.main()
+

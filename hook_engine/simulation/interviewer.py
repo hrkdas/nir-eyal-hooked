@@ -58,8 +58,8 @@ class SyntheticInterviewer:
     def interview_cohort(
         self, cohort: UserCohort, dropoff_round: str = "Day 0"
     ) -> ChurnInterviewTranscript:
-        """Runs a 5 Whys interview targeting a specific cohort's drop-off point."""
         max_inputs = max((a.input_fields_count for a in self.graph.actions), default=0)
+        worst_ttv = max((a.ttv_metrics.estimated_ttv_seconds for a in self.graph.actions if a.ttv_metrics), default=20)
         has_auth = any(a.requires_auth_wall for a in self.graph.actions)
         has_paywall = any(a.requires_payment for a in self.graph.actions)
         has_owned_trig = len(self.graph.triggers) > 0
@@ -75,11 +75,12 @@ class SyntheticInterviewer:
                 behavioral_diagnosis="Initial Action Barrier (Fogg Ability Threshold Exceeded)"
             ))
 
+            ttv_clause = f" (taking over ~{worst_ttv}s to reach value)" if worst_ttv > 45 else ""
             steps.append(InterviewStep(
                 why_level=2,
                 interviewer_question="Why did the setup flow feel so heavy?",
-                persona_response=f"It demanded {max_inputs} input fields and forced account creation before I even saw what the tool actually did for me.",
-                behavioral_diagnosis="Violation of Simplicity Sieve (Mental & Physical Effort Friction)"
+                persona_response=f"It demanded {max_inputs} input fields{ttv_clause} and forced account creation before I even saw what the tool actually did for me.",
+                behavioral_diagnosis="Violation of Simplicity Sieve (Mental & Physical Effort Friction / TTV Delay)"
             ))
 
             steps.append(InterviewStep(
