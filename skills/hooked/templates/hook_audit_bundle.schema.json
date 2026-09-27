@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HookAuditBundle",
+  "description": "Schema for Nir Eyal Hook Model Behavioral Audit Bundles",
+  "type": "object",
+  "required": [
+    "project_name",
+    "timestamp",
+    "version",
+    "overall_habit_health_score",
+    "habit_zone",
+    "manipulation_matrix_quadrant",
+    "fogg_simplicity_score",
+    "reward_entropy_score",
+    "stored_value_score",
+    "findings"
+  ],
+  "properties": {
+    "project_name": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "version": { "type": "string" },
+    "overall_habit_health_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "habit_zone": {
+      "type": "object",
+      "required": ["frequency_score", "perceived_utility_score", "in_habit_zone", "classification"],
+      "properties": {
+        "frequency_score": { "type": "number" },
+        "perceived_utility_score": { "type": "number" },
+        "in_habit_zone": { "type": "boolean" },
+        "classification": { "type": "string" }
+      }
+    },
+    "manipulation_matrix_quadrant": {
+      "type": "string",
+      "enum": ["facilitator", "peddler", "entertainer", "dealer"]
+    },
+    "fogg_simplicity_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "reward_entropy_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "stored_value_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["control_id", "phase", "title", "verdict", "severity", "observation", "recommendation"],
+        "properties": {
+          "control_id": { "type": "string" },
+          "phase": { "type": "string" },
+          "title": { "type": "string" },
+          "verdict": { "type": "string", "enum": ["pass", "fail", "warn", "not_applicable"] },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+          "observation": { "type": "string" },
+          "evidence": { "type": "string" },
+          "recommendation": { "type": "string" },
+          "code_patch_target": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "simulation_results": { "type": "object" },
+    "summary_verdict": { "type": "string" }
+  }
+}
