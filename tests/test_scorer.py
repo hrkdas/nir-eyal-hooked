@@ -47,6 +47,12 @@ class TestHabitScorer(unittest.TestCase):
         self.assertTrue(bundle.habit_zone.in_habit_zone)
         self.assertEqual(bundle.manipulation_matrix_quadrant, ManipulationQuadrant.FACILITATOR)
 
+        # Assert EAST, TTV, and RAT additions
+        self.assertIsNotNone(bundle.east_score)
+        self.assertIsNotNone(bundle.ttv_metrics)
+        self.assertIsNotNone(bundle.rat_assumption)
+        self.assertIn("Habit Devotees", bundle.rat_assumption.hypothesis)
+
     def test_high_friction_product_penalties(self):
         graph = HookGraph(project_name="FrictionHeavy")
         # 10 input fields and mandatory paywall

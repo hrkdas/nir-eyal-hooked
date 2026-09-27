@@ -17,6 +17,10 @@ from .models import (
     TriggerType,
     StoredValueType,
     FoggLever,
+    PromptType,
+    EASTScore,
+    TTVMetrics,
+    RATAssumption,
 )
 
 
@@ -56,7 +60,16 @@ class HabitScorer:
         ethics_quadrant, ethics_findings = self._audit_ethics()
         findings.extend(ethics_findings)
 
-        # 7. Aggregate Overall Habit Health Score (0 - 100)
+        # 7. Compute EAST Framework Score & Prompt Alignment
+        east_score = self._compute_east_score()
+
+        # 8. Compute Overall Time-to-Value (TTV) Stopwatch Metric
+        ttv_metrics = self._compute_overall_ttv()
+
+        # 9. Formulate Riskiest Habit Assumption Test (RAT)
+        rat_assumption = self._formulate_rat_assumption(fogg_score, entropy_score, investment_score)
+
+        # 10. Aggregate Overall Habit Health Score (0 - 100)
         overall_score = self._compute_overall_score(
             fogg_score=fogg_score,
             entropy_score=entropy_score,
@@ -75,9 +88,66 @@ class HabitScorer:
             fogg_simplicity_score=fogg_score,
             reward_entropy_score=entropy_score,
             stored_value_score=investment_score,
+            east_score=east_score,
+            ttv_metrics=ttv_metrics,
+            rat_assumption=rat_assumption,
             hook_graph=self.graph,
             findings=findings,
             summary_verdict=summary,
+        )
+
+    def _compute_east_score(self) -> EASTScore:
+        triggers_with_east = [t.east_score for t in self.graph.triggers if t.east_score]
+        if not triggers_with_east:
+            return EASTScore(easy=0.20, attractive=0.20, social=0.10, timely=0.20, overall=0.18)
+        avg_easy = sum(s.easy for s in triggers_with_east) / len(triggers_with_east)
+        avg_attractive = sum(s.attractive for s in triggers_with_east) / len(triggers_with_east)
+        avg_social = sum(s.social for s in triggers_with_east) / len(triggers_with_east)
+        avg_timely = sum(s.timely for s in triggers_with_east) / len(triggers_with_east)
+        avg_overall = (avg_easy + avg_attractive + avg_social + avg_timely) / 4.0
+        return EASTScore(easy=avg_easy, attractive=avg_attractive, social=avg_social, timely=avg_timely, overall=avg_overall)
+
+    def _compute_overall_ttv(self) -> TTVMetrics:
+        actions_with_ttv = [a.ttv_metrics for a in self.graph.actions if a.ttv_metrics]
+        if not actions_with_ttv:
+            return TTVMetrics(estimated_ttv_seconds=20, rating="Instant (<25s)", friction_bottleneck="None")
+        worst = max(actions_with_ttv, key=lambda m: m.estimated_ttv_seconds)
+        return worst
+
+    def _formulate_rat_assumption(self, fogg_score: int, entropy_score: int, investment_score: int) -> RATAssumption:
+        if not self.graph.triggers:
+            return RATAssumption(
+                hypothesis="Users will reflexively remember to return to the product without external trigger scaffolding.",
+                risk_level="Critical",
+                test_method="Survey churned users on Day 2 to measure brand recall latency.",
+                success_metric=">= 25% unprompted return rate without push/email cues."
+            )
+        if fogg_score < 40:
+            return RATAssumption(
+                hypothesis="Users possess sufficient initial motivation to complete a high-friction onboarding setup before experiencing value.",
+                risk_level="Critical",
+                test_method="A/B test a 1-step progressive onboarding against the existing setup flow.",
+                success_metric=">= 50% increase in Day-0 activation rate."
+            )
+        if entropy_score < 50:
+            return RATAssumption(
+                hypothesis="Finite rewards (static badges/points) will maintain dopamine engagement past Day 14.",
+                risk_level="High",
+                test_method="Cohort retention comparison at Day 7 vs Day 30.",
+                success_metric="D30 retention decay rate <= 40% of D7 cohort baseline."
+            )
+        if investment_score < 40:
+            return RATAssumption(
+                hypothesis="Users will form an enduring habit despite zero accumulated switching costs or stored data.",
+                risk_level="High",
+                test_method="Introduce post-reward auto-bookmarking and measure 30-day retention delta.",
+                success_metric=">= 15% increase in Day-30 retention for users who store value."
+            )
+        return RATAssumption(
+            hypothesis="Habit Devotees will reach the daily engagement threshold and form a self-sustaining basal ganglia routine.",
+            risk_level="Medium",
+            test_method="Cohort Habit Testing (Identify top 5% users and codify their habit path).",
+            success_metric="Devotee cohort represents >= 5% of active user base."
         )
 
     def _audit_triggers(self) -> List[Finding]:
@@ -193,6 +263,20 @@ class HabitScorer:
                 recommendation="Allow guest interaction or preview sandbox; prompt sign-up when user saves work (stored value).",
             ))
 
+        # Check Time-to-Value (TTV) Stopwatch metric
+        worst_ttv = max((a.ttv_metrics.estimated_ttv_seconds for a in self.graph.actions if a.ttv_metrics), default=20)
+        if worst_ttv > 90:
+            findings.append(Finding(
+                control_id="HOOK-ACT-04",
+                phase="action",
+                title="Time-to-Value (TTV) Friction Alert",
+                verdict=FindingVerdict.FAIL,
+                severity=FindingSeverity.HIGH,
+                observation=f"Estimated Time-to-Value is ~{worst_ttv}s (Cognitive Exhaustion threshold exceeded).",
+                evidence="Setup friction exceeds 90-second activation budget (Corey Haines Stopwatch model).",
+                recommendation="Convert into an Endowed Progress progressive wizard: pre-fill defaults and show instant value.",
+            ))
+
         fogg_score = max(10, min(100, base_score))
         return fogg_score, findings
 
@@ -215,6 +299,7 @@ class HabitScorer:
         has_hunt = any(r.reward_type == RewardType.HUNT for r in self.graph.rewards)
         has_self = any(r.reward_type == RewardType.SELF for r in self.graph.rewards)
         has_infinite = any(r.is_infinite_variability for r in self.graph.rewards)
+        has_extrinsic_only = any(r.is_extrinsic_only for r in self.graph.rewards)
 
         entropy_score = 40
         if has_tribe:
@@ -225,8 +310,22 @@ class HabitScorer:
             entropy_score += 15
         if has_infinite:
             entropy_score += 15
+        if has_extrinsic_only:
+            entropy_score -= 10
 
         entropy_score = max(10, min(100, entropy_score))
+
+        if has_extrinsic_only:
+            findings.append(Finding(
+                control_id="HOOK-REW-03",
+                phase="reward",
+                title="Overjustification Effect Risk (Superficial Gamification)",
+                verdict=FindingVerdict.WARN,
+                severity=FindingSeverity.MEDIUM,
+                observation="Extrinsic points/tokens detected without intrinsic mastery or social validation.",
+                evidence="Points-only reward structure risks crowding out user's authentic internal emotional itch.",
+                recommendation="Shift gamification from extrinsic points to intrinsic competence (Wondelai Mastery model).",
+            ))
 
         if not has_infinite:
             findings.append(Finding(

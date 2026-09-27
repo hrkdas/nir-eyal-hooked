@@ -75,6 +75,65 @@ class FindingVerdict(str, Enum):
     NOT_APPLICABLE = "not_applicable"
 
 
+class PromptType(str, Enum):
+    """BJ Fogg Prompt Taxonomy."""
+    SPARK = "spark"             # Low motivation, high ability: Needs inspiration/dopamine
+    FACILITATOR = "facilitator" # High motivation, low ability: Needs friction reduction
+    SIGNAL = "signal"           # High motivation, high ability: Simple reminder cue
+
+
+@dataclass
+class EASTScore:
+    """UK Behavioral Insights Team EAST Framework."""
+    easy: float = 0.5           # Friction reduction (0.0 to 1.0)
+    attractive: float = 0.5     # Salience and visual hook (0.0 to 1.0)
+    social: float = 0.5         # Social proof and peer cues (0.0 to 1.0)
+    timely: float = 0.5         # Prompt arrival at moment of need (0.0 to 1.0)
+    overall: float = 0.5
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "easy": round(self.easy, 2),
+            "attractive": round(self.attractive, 2),
+            "social": round(self.social, 2),
+            "timely": round(self.timely, 2),
+            "overall": round(self.overall, 2),
+        }
+
+
+@dataclass
+class TTVMetrics:
+    """Estimated Time-to-Value stopwatch metrics (from Corey Haines CRO)."""
+    estimated_ttv_seconds: int = 30
+    rating: str = "Optimal (<45s)"
+    friction_bottleneck: str = "None"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "estimated_ttv_seconds": self.estimated_ttv_seconds,
+            "rating": self.rating,
+            "friction_bottleneck": self.friction_bottleneck,
+        }
+
+
+@dataclass
+class RATAssumption:
+    """Riskiest Habit Assumption Test (from Dean Peters Product Manager Skills)."""
+    hypothesis: str
+    risk_level: str             # "Critical", "High", "Medium"
+    test_method: str
+    success_metric: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "hypothesis": self.hypothesis,
+            "risk_level": self.risk_level,
+            "test_method": self.test_method,
+            "success_metric": self.success_metric,
+        }
+
+
+
 @dataclass
 class HookTrigger:
     id: str
@@ -85,6 +144,8 @@ class HookTrigger:
     internal_itch: Optional[InternalItch] = None
     is_recurring: bool = False
     source_reference: str = ""              # e.g., "src/jobs/notification.ts"
+    prompt_type: Optional[PromptType] = None
+    east_score: Optional[EASTScore] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -96,6 +157,8 @@ class HookTrigger:
             "internal_itch": self.internal_itch.value if self.internal_itch else None,
             "is_recurring": self.is_recurring,
             "source_reference": self.source_reference,
+            "prompt_type": self.prompt_type.value if self.prompt_type else None,
+            "east_score": self.east_score.to_dict() if self.east_score else None,
         }
 
 
@@ -110,6 +173,7 @@ class HookAction:
     requires_payment: bool = False          # Requires credit card upfront?
     fogg_friction_levers: List[FoggLever] = field(default_factory=list)
     source_reference: str = ""
+    ttv_metrics: Optional[TTVMetrics] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -122,6 +186,7 @@ class HookAction:
             "requires_payment": self.requires_payment,
             "fogg_friction_levers": [lever.value for lever in self.fogg_friction_levers],
             "source_reference": self.source_reference,
+            "ttv_metrics": self.ttv_metrics.to_dict() if self.ttv_metrics else None,
         }
 
 
@@ -135,6 +200,8 @@ class HookReward:
     dopamine_delivery_latency_seconds: float = 1.0 # How fast reward arrives after action
     description: str = ""
     source_reference: str = ""
+    is_extrinsic_only: bool = False         # True if points/badges with no intrinsic mastery
+    overjustification_risk: str = "low"     # "low", "medium", "high"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -146,6 +213,8 @@ class HookReward:
             "dopamine_delivery_latency_seconds": self.dopamine_delivery_latency_seconds,
             "description": self.description,
             "source_reference": self.source_reference,
+            "is_extrinsic_only": self.is_extrinsic_only,
+            "overjustification_risk": self.overjustification_risk,
         }
 
 
@@ -250,6 +319,9 @@ class AuditBundle:
     fogg_simplicity_score: int = 50         # 0 (high friction) to 100 (frictionless)
     reward_entropy_score: int = 50          # 0 (completely finite) to 100 (infinite)
     stored_value_score: int = 50            # 0 (zero investment) to 100 (high compounding value)
+    east_score: Optional[EASTScore] = None
+    ttv_metrics: Optional[TTVMetrics] = None
+    rat_assumption: Optional[RATAssumption] = None
     hook_graph: HookGraph = field(default_factory=lambda: HookGraph("Unknown"))
     findings: List[Finding] = field(default_factory=list)
     simulation_results: Dict[str, Any] = field(default_factory=dict)
@@ -266,6 +338,9 @@ class AuditBundle:
             "fogg_simplicity_score": self.fogg_simplicity_score,
             "reward_entropy_score": self.reward_entropy_score,
             "stored_value_score": self.stored_value_score,
+            "east_score": self.east_score.to_dict() if self.east_score else None,
+            "ttv_metrics": self.ttv_metrics.to_dict() if self.ttv_metrics else None,
+            "rat_assumption": self.rat_assumption.to_dict() if self.rat_assumption else None,
             "hook_graph": self.hook_graph.to_dict(),
             "findings": [f.to_dict() for f in self.findings],
             "simulation_results": self.simulation_results,

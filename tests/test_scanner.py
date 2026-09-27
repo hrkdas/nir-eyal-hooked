@@ -69,6 +69,9 @@ class TestCodebaseScanner(unittest.TestCase):
         action = graph.actions[0]
         self.assertEqual(action.input_fields_count, 7)
         self.assertTrue(len(action.fogg_friction_levers) >= 2)
+        # Check TTV Stopwatch calculation
+        self.assertIsNotNone(action.ttv_metrics)
+        self.assertGreaterEqual(action.ttv_metrics.estimated_ttv_seconds, 80)
 
     def test_detect_variable_rewards_and_stored_value(self):
         feed_file = self.dir_path / "FeedAndLibrary.tsx"

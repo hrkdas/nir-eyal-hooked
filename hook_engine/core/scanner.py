@@ -20,6 +20,9 @@ from .models import (
     FoggLever,
     RewardType,
     StoredValueType,
+    PromptType,
+    EASTScore,
+    TTVMetrics,
 )
 
 
@@ -108,6 +111,8 @@ class CodebaseScanner:
                     description="Automated push notification detected in worker or client handler",
                     source_reference=rel_path,
                     is_recurring=True,
+                    prompt_type=PromptType.SIGNAL,
+                    east_score=EASTScore(easy=0.85, attractive=0.75, social=0.60, timely=0.80, overall=0.75),
                 ))
                 break
 
@@ -125,6 +130,8 @@ class CodebaseScanner:
                     description="Email dispatch routine identified",
                     source_reference=rel_path,
                     is_recurring=True,
+                    prompt_type=PromptType.FACILITATOR,
+                    east_score=EASTScore(easy=0.60, attractive=0.65, social=0.50, timely=0.60, overall=0.59),
                 ))
                 break
 
@@ -142,6 +149,8 @@ class CodebaseScanner:
                     description="Time-based background trigger scheduler detected",
                     source_reference=rel_path,
                     is_recurring=True,
+                    prompt_type=PromptType.FACILITATOR,
+                    east_score=EASTScore(easy=0.50, attractive=0.40, social=0.30, timely=0.45, overall=0.41),
                 ))
                 break
 
@@ -158,6 +167,8 @@ class CodebaseScanner:
                     channel="social_invite",
                     description="Relationship trigger mechanic detected",
                     source_reference=rel_path,
+                    prompt_type=PromptType.SPARK,
+                    east_score=EASTScore(easy=0.70, attractive=0.85, social=0.95, timely=0.70, overall=0.80),
                 ))
                 break
 
@@ -187,17 +198,32 @@ class CodebaseScanner:
             if has_auth_gate:
                 levers.append(FoggLever.ROUTINE_DISRUPTION)
 
+            # Calculate Time-to-Value (TTV) Stopwatch metrics
+            ttv_secs = (inputs_count * 12) + (35 if has_auth_gate else 0) + (60 if has_payment_wall else 0) + 10
+            if ttv_secs <= 25:
+                ttv_rating = "Instant (<25s)"
+            elif ttv_secs <= 45:
+                ttv_rating = "Optimal (<45s)"
+            elif ttv_secs <= 90:
+                ttv_rating = "Friction Warning (45-90s)"
+            else:
+                ttv_rating = "Cognitive Exhaustion (>90s)"
+
+            bottleneck = "Form Inputs" if inputs_count >= 5 else ("Payment Wall" if has_payment_wall else ("Auth Wall" if has_auth_gate else "None"))
+            ttv_obj = TTVMetrics(estimated_ttv_seconds=ttv_secs, rating=ttv_rating, friction_bottleneck=bottleneck)
+
             action_name = f"User Action Flow in {Path(rel_path).name}"
             graph.actions.append(HookAction(
                 id=f"act-{len(graph.actions)+1}",
                 name=action_name,
-                description=f"Action interface with {inputs_count} input fields detected",
+                description=f"Action interface with {inputs_count} input fields detected (TTV: ~{ttv_secs}s)",
                 input_fields_count=inputs_count,
                 steps_count=max(1, inputs_count // 3),
                 requires_auth_wall=has_auth_gate,
                 requires_payment=has_payment_wall,
                 fogg_friction_levers=levers,
                 source_reference=rel_path,
+                ttv_metrics=ttv_obj,
             ))
 
     def _detect_rewards(self, content: str, rel_path: str, graph: HookGraph):
@@ -238,6 +264,20 @@ class CodebaseScanner:
                 is_variable=True,
                 is_infinite_variability=is_infinite,
                 description="Progress, streak, or personal mastery feedback",
+                source_reference=rel_path,
+            ))
+
+        # Extrinsic Only Rewards (Points, Coins, Loyalty Tokens - Overjustification Risk)
+        if re.search(r"virtual_currency|loyalty_points|reward_coins|daily_tokens|gamification_points", lower):
+            graph.rewards.append(HookReward(
+                id=f"rew-ext-{len(graph.rewards)+1}",
+                name=f"Extrinsic Points Reward ({Path(rel_path).name})",
+                reward_type=RewardType.HUNT,
+                is_variable=False,
+                is_infinite_variability=False,
+                is_extrinsic_only=True,
+                overjustification_risk="high",
+                description="Extrinsic points/tokens; risk of crowding out intrinsic motivation",
                 source_reference=rel_path,
             ))
 
