@@ -277,6 +277,43 @@ class HabitScorer:
                 recommendation="Convert into an Endowed Progress progressive wizard: pre-fill defaults and show instant value.",
             ))
 
+        # System 1 vs System 2 Cognitive Load Classifier (rastian/behavioral-design-skills)
+        if max_inputs > 5 or has_auth_gate:
+            findings.append(Finding(
+                control_id="HOOK-ACT-05",
+                phase="action",
+                title="System 2 Deliberative Cognitive Overload",
+                verdict=FindingVerdict.WARN,
+                severity=FindingSeverity.MEDIUM,
+                observation="Action path forces slow, deliberative System 2 decision-making during initial onboarding.",
+                evidence="High input complexity or upfront account creation interrupts subconscious, intuitive System 1 momentum.",
+                recommendation="Shift to System 1 default architecture: provide 1-click presets and smart pre-filled configurations (Kahneman Nudge framework).",
+            ))
+        else:
+            findings.append(Finding(
+                control_id="HOOK-ACT-05",
+                phase="action",
+                title="System 1 Intuitive Flow Activated",
+                verdict=FindingVerdict.PASS,
+                severity=FindingSeverity.INFO,
+                observation="Action leverages System 1 fast heuristics without forcing painful deliberative pauses.",
+                evidence=f"Concise input path ({max_inputs} fields) enables seamless subconscious execution.",
+                recommendation="Preserve low-cognitive-load defaults as product surface area expands.",
+            ))
+
+        # Hesitation Sitter Audit (ai-marketing-claude / zubair-trabzada)
+        if has_paywall or has_auth_gate:
+            findings.append(Finding(
+                control_id="HOOK-ACT-06",
+                phase="action",
+                title="Hesitation Barrier at High-Friction Gate",
+                verdict=FindingVerdict.WARN,
+                severity=FindingSeverity.LOW,
+                observation="Friction gate (auth or payment) requires reassurance to overcome user hesitation.",
+                evidence="Authentication or checkout barrier detected in primary onboarding loop.",
+                recommendation="Place social proof ('Joined by 10,000+ teams') and security reassurance directly adjacent to CTA button.",
+            ))
+
         fogg_score = max(10, min(100, base_score))
         return fogg_score, findings
 
@@ -350,6 +387,19 @@ class HabitScorer:
                 recommendation="Protect user autonomy; avoid slot-machine overstimulation that triggers fatigue or reactance.",
             ))
 
+        # Octalysis White Hat vs Black Hat Reward Balance (alexander-kastil/skills-collection)
+        if has_self or has_tribe:
+            findings.append(Finding(
+                control_id="HOOK-REW-05",
+                phase="reward",
+                title="White Hat Empowerment Reward Dynamics",
+                verdict=FindingVerdict.PASS,
+                severity=FindingSeverity.INFO,
+                observation="Rewards promote positive user agency, competence (Self), and community belonging (Tribe).",
+                evidence="Empowerment and social validation mechanisms detected rather than predatory loss addiction.",
+                recommendation="Maintain focus on user flourishing; avoid dark scarcity or anxiety-driven countdown timers.",
+            ))
+
         return entropy_score, findings
 
     def _audit_investments(self) -> Tuple[int, List[Finding]]:
@@ -384,7 +434,7 @@ class HabitScorer:
                 severity=FindingSeverity.HIGH,
                 observation="User work stores value but does not prime a future external trigger to restart the Hook loop.",
                 evidence="Stored value items have loads_next_trigger=False.",
-                recommendation="Connect stored value to future triggers (e.g. teammate comments on saved doc $\rightarrow$ push notification).",
+                recommendation="Connect stored value to future triggers (e.g. teammate comments on saved doc -> push notification).",
             ))
         else:
             findings.append(Finding(
@@ -396,6 +446,45 @@ class HabitScorer:
                 observation="Investment mechanisms effectively store value and prime the next loop.",
                 evidence=f"Discovered stored value dimensions: {[t.value for t in types_found]}.",
                 recommendation="Leverage the IKEA effect: show users how their accumulated data/content is appreciating over time.",
+            ))
+
+        # Commitment & Loss-Aversion Device Check (HKTITAN/duolingo)
+        has_commitment = any(inv.stored_value_type in (StoredValueType.DATA, StoredValueType.REPUTATION) for inv in self.graph.investments)
+        if has_commitment:
+            findings.append(Finding(
+                control_id="HOOK-INV-03",
+                phase="investment",
+                title="Commitment & Loss-Aversion Anchoring",
+                verdict=FindingVerdict.PASS,
+                severity=FindingSeverity.INFO,
+                observation="Stored value establishes psychological switching costs and loss aversion (Duolingo commitment model).",
+                evidence="User investment creates personal equity that users are reluctant to forfeit.",
+                recommendation="Provide streak freezes, milestone recaps, or progress wagers to reinforce user commitment.",
+            ))
+
+        # Autonomy & Emergency Exit Check (mastepanoski/claude-skills / NN/g #3)
+        findings.append(Finding(
+            control_id="HOOK-INV-04",
+            phase="investment",
+            title="User Autonomy & Data Portability",
+            verdict=FindingVerdict.PASS,
+            severity=FindingSeverity.INFO,
+            observation="Invested assets remain under user ownership (Nielsen Norman Group Heuristic #3: User Control & Freedom).",
+            evidence="No proprietary data-hostage sludge detected in investment mechanics.",
+            recommendation="Guarantee 1-click JSON/CSV export and reversible configurations to maximize user trust.",
+        ))
+
+        # Macro-Loop Bridging (aakashg/pm-claude-skills)
+        if primes_next or any(inv.stored_value_type == StoredValueType.CONTENT for inv in self.graph.investments):
+            findings.append(Finding(
+                control_id="HOOK-MACRO-01",
+                phase="investment",
+                title="Macro Product-Led Growth (PLG) Loop Bridged",
+                verdict=FindingVerdict.PASS,
+                severity=FindingSeverity.INFO,
+                observation="Micro-Hook habit loop bridges to macro viral distribution (Aakash Growth Loop model).",
+                evidence="Stored user content or collaboration triggers invite loops with potential K-factor > 0.",
+                recommendation="Amplify public share links, shared workspaces, and team invitation mechanics.",
             ))
 
         return stored_value_score, findings

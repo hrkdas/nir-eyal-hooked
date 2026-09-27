@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hook-engine"
+version = "1.0.0"
+description = "Nir Eyal Hook Model Behavioral Audit, Simulation & Remediation Engine"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "HookEngine Contributors" }
+]
+keywords = [
+    "hook-model",
+    "nir-eyal",
+    "behavioral-psychology",
+    "retention",
+    "gamification",
+    "claude-skill",
+    "antigravity-skill",
+    "fogg-behavior-model",
+    "growth-loops"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.scripts]
+hook-engine = "hook_engine.cli:main"
+hook-audit = "hook_engine.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hook_engine*"]
